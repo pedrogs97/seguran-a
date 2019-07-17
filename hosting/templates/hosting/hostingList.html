@@ -1,0 +1,23 @@
+{% load render_table from django_tables2 %}
+
+
+<head>
+    <title>Hosting-FIEB</title>
+</head>
+<body>
+    {% block content %}
+    {% if user.is_authenticated %}
+    <h1>Hosting FIEB</h1>
+    <br/>
+    <p>{{ user.username }} <button><a href="{% url 'logout' %}">Logout</a></button></p>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+    {% render_table table %}
+    <br/>
+    <p><button><a href="{% url "hosting_create" %}">Novo</a></button></p>
+    
+    {% else %}
+    <p>You are not logged in</p>
+    <a href="{% url 'login' %}">Login</a>
+    {% endif %}
+    {% endblock %}
+</body>
