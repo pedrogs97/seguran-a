@@ -16,18 +16,16 @@
         margin: 4px 2px;
         cursor: pointer;
     }
+
     .button:hover
     {
         background-color: rgb(196, 117, 124);
     }
 </style>
 <body>
-    <h1>Hosting Edit</h1>
+    <h1>Hosting Delete</h1>
     <form method="post">{% csrf_token %}
-        {{ form.as_p }}
-        {% if form.hosting_senai.value %}
-            <p>oi</p>
-        {% endif%}
+        Are you sure you want to delete "{{ object }}?
         <input type="submit" class="button" value="OK" />
     </form>
 </body>

@@ -1,0 +1,416 @@
+{% load render_table from django_tables2 %}
+
+
+<head>
+    <title >Hosting-SENAI</title>
+
+    <style type="text/css">
+
+        body {
+            background-color: rgb(187, 184, 184);
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        h1, h2 {
+            text-align: center;
+        }
+
+        .topnav {
+            background-color: #333;
+            overflow: hidden;
+            width: 1800px;
+        }
+
+        /* Style the links inside the navigation bar */
+        .topnav a {
+            float: left;
+            color: #f2f2f2;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            font-size: 17px;
+        }
+
+        .topnav div#user, .topnav a#logout {
+            float: right;
+            color: #f2f2f2;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            font-size: 17px;
+        }
+
+        /* Change the color of links on hover */
+        .topnav a:hover, .dropdown:hover {
+            background-color: rgb(151, 148, 148);
+            color: black;
+        }
+
+        /* Add a color to the active/current link */
+        .topnav a.active {
+            background-color: rgb(76, 107, 175);
+            color: white;
+        }
+
+        .dropdown {
+            float: left;
+            overflow: hidden;
+        }
+
+        .dropdown .dropbtn {
+            font-size: 16px;
+            border: none;
+            outline: none;
+            color: white;
+            padding: 14px 16px;
+            background-color: inherit;
+            font-family: inherit; /* Important for vertical align on mobile phones */
+            margin: 0; /* Important for vertical align on mobile phones */
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+
+        .dropdown-content a {
+            float: none;
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            text-align: left;
+        }
+
+        /* Add a grey background color to dropdown links on hover */
+        .dropdown-content a:hover {
+            background-color: #ddd;
+        }
+
+        /* Show the dropdown menu on hover */
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .button {
+            background-color: rgb(113, 114, 113);
+            border: none;
+            color: white;
+            padding: 8px 18px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+
+        .button:hover
+        {
+            background-color: rgb(196, 117, 124);
+        }
+
+        .remove {
+            background-color: rgb(113, 114, 113);
+            border: none;
+            color: white;
+            padding: 8px 8px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 10px;
+            cursor: pointer;
+        }
+
+        body {
+            background-color: #f6f6ff;
+            font-family: Calibri, Myriad;
+        }
+        
+        #main {
+            width: 1800px;
+            padding: 10px;
+            margin: auto;
+        }
+        
+        table.hosting {
+            margin: auto;
+            border-collapse: collapse;
+            border: 1px solid #fff; /*for older IE*/
+            border-style: hidden;
+            display: inline-table;    
+            }
+
+        table.hosting thead th {
+            padding: 8px;
+            font-size: large;
+        }
+        
+        table.hosting thead th {
+            width: 40%;	
+        }
+
+        table.hosting td{
+            background-color: rgb(212, 212, 212);
+        }
+
+        table.hosting th, table.hosting td {
+            padding: 3px;
+            border-width: 1px;
+            border-style: solid;
+            border-color: #919194 #ffff;
+        }
+
+        table.hosting tbody th {
+            text-align: center;
+            font-weight: bold;
+            color: #272626;
+        }
+        
+        table.hosting tfoot {
+            font-weight: bold;
+            font-size: large;
+            background-color: #687886;
+            color: #fff;
+        }
+        
+        table.hosting tr.even {
+            background-color: #fde9d9;
+        }
+        </style>
+</head>
+<body style="background-color:rgb(187, 184, 184); font-family: 'Courier New', Courier, monospace;">
+    
+    {% block content %}
+    {% if user.is_authenticated %}
+    <div class="topnav">
+            <a class="active" href="{% url "hosting_list" %}">SENAI</a>
+            <a href="{% url "hosting_fieb" %}">FIEB</a>
+            <a>Financeiro</a>
+            <a href="{% url "tabela_preco" %}">Tabela de Preços</a>
+            <div class="dropdown">
+                <button class="dropbtn">Anteriores
+                  <i class="fa fa-caret-down"></i>
+                </button>
+                <div class="dropdown-content">
+                  <a href="#">Janeiro</a>
+                  <a href="#">Fevereiro</a>
+                  <a href="#">Março</a>
+                  <a href="#">Abril</a>
+                  <a href="#">Maio</a>
+                  <a href="#">Junho</a>
+                </div>
+            </div>
+            <a id="logout" href="{% url 'logout' %}">Logout</a>
+            <div id="user">Bem vindo, {{ user.username }}</div>
+        </div> 
+    <h1>AMBIENTE SENAI</h1>
+    <h2>{{ mes }}</h2>
+    <br/>
+    <a class="button" style="margin-left: 1650px;" href="{% url "hosting_create" %}" >Novo Servidor</a>
+    <div id="main" style="margin-bottom: 50px;">
+        <table  width=1800 class="hosting">
+            <tr bgcolor=#2e72af>
+                    <th width=100>Empresa</th>
+                    <th width=180>Server</th>
+                    <th width=120>Descrição</th>
+                    <th width=75>CPU</th>
+                    <th width=90>Memória</th>
+                    <th width=75>Disco</th>
+                    <th width=130>Tipo de Máquina</th>
+                    <th width=60>Tipo</th>
+                    <th width=80>Perfil</th>
+                    <th width=170>Recurso</th>
+                    <th width=230>Valor de Tabela (R$)</th>
+                    <th width=100>CPU Adicional</th>
+                    <th width=170>Valor CPU Adional (R$)</th>
+                    <th width=110>Memória Adicional</th>
+                    <th width=190>Valor Memória Adicional (R$)</th>
+                    <th width=110>Disco Adicional</th>
+                    <th width=130>Valor Disco Adicional (R$)</th>
+                    <th width=130>Valor Total (R$)</th>
+            </tr>
+            {% for hosting in object_list %}
+                <tr id="row">
+                        <td>{{ hosting.empresa }}</td>
+                        <td>{{ hosting.server }}</td>
+                        <td align="center">{{ hosting.descricao }}</td>
+                        <td align="center">{{ hosting.cpu }}</td>
+                        <td align="center">{{ hosting.memoria }}</td>
+                        <td align="center">{{ hosting.disco }}</td>
+                        <td align="center">{{ hosting.tipo_maq }}</td>
+                        <td align="center">{{ hosting.tipo }}</td>
+                        <td align="center">{{ hosting.perfil }}</td>
+                        <td align="center">{{ hosting.recurso }}</td>
+                        <td align="right">{{ hosting.valor_tabela }}</td>
+                        <td align="center">{{ hosting.proc_adicional }}</td>
+                        <td align="right">{{ hosting.valor_proc_adicional }}</td>
+                        <td align="center">{{ hosting.memoria_adicional }}</td>
+                        <td align="right">{{ hosting.valor_memoria_adicional }}</td>
+                        <td align="center">{{ hosting.disco_adicional }}</td>
+                        <td align="right">{{ hosting.valor_disco_adicional }}</td>
+                        <td align="right">{{ hosting.valor_total }}</td>
+                        <td align="center"><a class="remove" href="{% url "hosting_delete" hosting.id %}">x</a></td>
+                        <td align="center"><a class="remove" href="{% url "hosting_edit" hosting.id %}">Editar</a></td>
+                </tr>
+            {% empty %}
+                <li>Nothing yet.</li>
+            {% endfor %}
+            <tfooter>
+                <tr>
+                    <td style="font-weight: bold;">Total Servidores</td>
+                    <td align="center" style="font-weight: bold;">R$ {{ total }}</td>
+                </tr>
+            </footer>
+        </table>
+    </div>
+    <div style="margin-left: 500; margin-top: -10px;">
+        <table width=700  class="hosting">
+            <TR bgcolor=#7778f0>
+                <th colspan="6">SERVIÇÕES ADICIONAIS</th>
+            </TR>
+            <tr bgcolor=#2e72af>
+                    <th>CASA</th>
+                    <th width=100>DESCRIÇÃO</th>
+                    <th width=180>TICKET</th>
+                    <th width=100>DURAÇÃO</th>
+                    <th width=180>OBSERVAÇÃO</th>
+                    <th width=100>RESPONSÁVEL</th>
+                    <th width=180>VALOR</th>
+            </tr>
+            {% for item in servico_list %}
+            <tr id="row" ></tr>
+                <td>{{ item.casa }}</td>
+                <td > {{ item.descricao }}</td>
+                <td align="right"> {{ item.ticket }}</td>
+                <td align="right"> {{ item.duracao }}</td>
+                <td align="right"> {{ item.observacao }}</td>
+                <td align="right"> {{ item.responsavel }}</td>
+                <td align="right">R$ {{ item.valor }}</td>
+                <td align="center"><a class="remove" href="{% url "servicos_delete" item.id %}">x</a></td>
+                <td align="center"><a class="remove" href="{% url "servicos_edit" item.id %}">Editar</a></td>
+            </tr>
+            {% empty %}
+                <li>Nothing yet.</li>
+            {% endfor %}
+            <tfooter>
+                <tr>
+                    <td style="font-weight: bold;">Total</td>
+                    <td align="center" style="font-weight: bold;">R$ {{ total_servico }}</td>
+                </tr>
+            </footer>
+        </table>
+        </div>
+        <a class="button" style="margin-left: 1240px;" href="{% url 'servicos_adicionais' %}">Novo Serviço</a>
+        <div style="margin-left: 500; margin-top: 50px;">
+                <table  class="hosting">
+                    <TR bgcolor=#7778f0>
+                        <th colspan="6">BACKUP DE DADOS</th>
+                    </TR>
+                    <tr bgcolor=#2e72af>
+                            <th>CASA</th>
+                            <th width=100>DESCRIÇÃO</th>
+                            <th width=180>VALOR UNITÁRIO</th>
+                            <th width=100>VOLUME ARMAZENAMENTO(EM GB)</th>
+                            <th width=180>QUANTIDADE</th>
+                            <th width=210>VALOR BACKUP</th>
+                    </tr>
+                    {% for item in backup_list %}
+                    <tr id="row" ></tr>
+                        <td>{{ item.casa }}</td>
+                        <td > {{ item.descricao }}</td>
+                        <td align="center"> {{ item.valorUnitario }}</td>
+                        <td align="center"> {{ item.volume }}</td>
+                        <td align="center"> {{ item.quantidade }}</td>
+                        <td align="right">R$ {{ item.valor }}</td>
+                        <td align="center"><a class="remove" href="{% url "backup_delete" item.id %}">x</a></td>
+                        <td align="center"><a class="remove" href="{% url "backup_edit" item.id %}">Editar</a></td>
+                    </tr>
+                    {% empty %}
+                        <li>Nothing yet.</li>
+                    {% endfor %}
+                    <tfooter>
+                        <tr>
+                            <td style="font-weight: bold;">Total</td>
+                            <td align="center" style="font-weight: bold;" width=300>R$ {{ total_backup }}</td>
+                        </tr>
+                    </footer>
+                </table>
+                </div>
+                <a class="button" href="{% url 'backup_adicionais' %}">Novo Bakcup</a>
+                <div >
+                    <table  style="margin-left: 500; margin-top: 30px;" class="hosting">
+                        <TR bgcolor=#7778f0>
+                            <th colspan="2">PRECIFICAÇÃO DO AMBIENTE SENAI</th>
+                        </TR>
+                        <tr bgcolor=#2e72af>
+                                <th width=100>CLIENTE</th>
+                                <th width=180>TOTAL</th>
+                        </tr>
+                        {% for item in total_empresa %}
+                        <tr id="row" ></tr>
+                            <td > {{ item.empresa }}</td>
+                            <td align="right">R$ {{ item.valor }}</td>
+                        </tr>
+                        {% empty %}
+                            <li>Nothing yet.</li>
+                        {% endfor %}
+                        <tfooter>
+                            <tr>
+                                <td style="font-weight: bold;">Total</td>
+                                <td align="center" style="font-weight: bold;">R$ {{ total }}</td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: black;" colspan="2"></td>
+                                
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold;">Total por ANO</td>
+                                <td align="center" style="font-weight: bold;">R$ {{ totalAno }}</td>
+                            </tr> 
+                        </footer>
+                    </table>
+                </div>
+                <div >
+                        <table  style="margin-left: 900; margin-top: -400px;" class="hosting">
+                            <TR bgcolor=#7778f0>
+                                <th colspan="2">TOTAL SERVIÇO</th>
+                            </TR>
+                            <tr bgcolor=#2e72af>
+                                    <th width=100>CASA</th>
+                                    <th width=180>VALOR MENSAL</th>
+                            </tr>
+                            <tr id="row" ></tr>
+                                <td >SENAI</td>
+                                <td align="right">R$ {{ casa_senai }}</td>
+                            </tr>
+                            <tr id="row" ></tr>
+                                <td >SESI</td>
+                                <td align="right">R$ {{ casa_sesi }}</td>
+                            </tr>
+                            <tr id="row" ></tr>
+                                <td >FIEB</td>
+                                <td align="right">R$ {{ casa_fieb }}</td>
+                            </tr>
+                            <tr id="row" ></tr>
+                                <td >IEL</td>
+                                <td align="right">R$ {{ casa_iel }}</td>
+                            </tr>
+                            <tfoot>
+                                    <tr><td style="background-color: black;" colspan="2"></td></tr>
+                                    <tr>
+                                            <td align="center" style="font-weight: bold; color: black;" width=300 colspan="2">Valor total de Serviços adicionais: R$ {{ total_adicionais }}</td>
+                                    </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+    {% else %}
+    <p>You are not logged in</p>
+    <a class="button" href="{% url 'login' %}">Login</a>
+    {% endif %}
+    {% endblock %}
+</body>

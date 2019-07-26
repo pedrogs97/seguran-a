@@ -1,4 +1,10 @@
-<h1>Hosting Edit</h1>
-<form>
-    <input type="text" title="Descrição Teste">
-</form>
+{% load render_table from django_tables2 %}
+
+<h1>Hosting FIEB</h1>
+    <br/>
+    <p>{{ user.username }} <button><a href="{% url 'logout' %}">Logout</a></button></p>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+    {% render_table teste %}
+    <br/>
+    <p><button><a href="{% url "hosting_create" %}">Novo</a></button></p>
+    

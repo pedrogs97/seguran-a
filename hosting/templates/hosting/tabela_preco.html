@@ -1,0 +1,663 @@
+{% load render_table from django_tables2 %}
+
+
+<head>
+    <title >Hosting-SENAI-Tabela de preços</title>
+
+    <style type="text/css">
+
+        body {
+            background-color: rgb(187, 184, 184);
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        h1, h2 {
+            text-align: center;
+        }
+
+        .topnav {
+            background-color: #333;
+            overflow: hidden;
+        }
+
+        /* Style the links inside the navigation bar */
+        .topnav a {
+            float: left;
+            color: #f2f2f2;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            font-size: 17px;
+        }
+
+        .topnav div#user, .topnav a#logout {
+            float: right;
+            color: #f2f2f2;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            font-size: 17px;
+        }
+
+        /* Change the color of links on hover */
+        .topnav a:hover, .dropdown:hover {
+            background-color: rgb(151, 148, 148);
+            color: black;
+        }
+
+        /* Add a color to the active/current link */
+        .topnav a.active {
+            background-color: rgb(76, 107, 175);
+            color: white;
+        }
+
+        .dropdown {
+            float: left;
+            overflow: hidden;
+        }
+
+        .dropdown .dropbtn {
+            font-size: 16px;
+            border: none;
+            outline: none;
+            color: white;
+            padding: 14px 16px;
+            background-color: inherit;
+            font-family: inherit; /* Important for vertical align on mobile phones */
+            margin: 0; /* Important for vertical align on mobile phones */
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+
+        .dropdown-content a {
+            float: none;
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            text-align: left;
+        }
+
+        /* Add a grey background color to dropdown links on hover */
+        .dropdown-content a:hover {
+            background-color: #ddd;
+        }
+
+        /* Show the dropdown menu on hover */
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .button {
+            background-color: rgb(113, 114, 113);
+            border: none;
+            color: white;
+            padding: 8px 18px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            margin-left: 60px;
+            margin-bottom: 30px;
+            cursor: pointer;
+        }
+
+        .button:hover
+        {
+            background-color: rgb(196, 117, 124);
+        }
+
+        .remove {
+            background-color: rgb(113, 114, 113);
+            border: none;
+            color: white;
+            padding: 8px 8px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 10px;
+            cursor: pointer;
+        }
+
+        body {
+            background-color: #f6f6ff;
+            font-family: Calibri, Myriad;
+        }
+        
+        
+        table.hosting {
+            margin: auto;
+            border-collapse: collapse;
+            border: 1px solid #fff; /*for older IE*/
+            border-style: hidden;
+        }
+
+        table.hosting thead th {
+            padding: 8px;
+            font-size: large;
+        }
+        
+        table.hosting thead th {
+            width: 40%;	
+        }
+
+        table.hosting td{
+            background-color: rgb(212, 212, 212);
+        }
+
+        table.hosting th, table.hosting td {
+            padding: 3px;
+            border-width: 1px;
+            border-style: solid;
+            border-color: #919194 #ffff;
+        }
+
+        table.hosting tbody th {
+            text-align: center;
+            font-weight: bold;
+            color: #272626;
+        }
+        
+        table.hosting tfoot {
+            font-weight: bold;
+            font-size: large;
+            background-color: #687886;
+            color: #fff;
+        }
+        
+        table.hosting tr.even {
+            background-color: #fde9d9;
+        }
+        </style>
+</head>
+<body style="background-color:rgb(187, 184, 184); font-family: 'Courier New', Courier, monospace;">
+    
+    {% block content %}
+    {% if user.is_authenticated %}
+    <div class="topnav">
+            <a href="{% url "hosting_list" %}">SENAI</a>
+            <a href="{% url "hosting_fieb" %}">FIEB</a>
+            <a>Financeiro</a>
+            <a class="active" href="{% url "tabela_preco" %}">Tabela de Preços</a>
+            <div class="dropdown">
+                <button class="dropbtn">Anteriores
+                  <i class="fa fa-caret-down"></i>
+                </button>
+                <div class="dropdown-content">
+                  <a href="#">Janeiro</a>
+                  <a href="#">Fevereiro</a>
+                  <a href="#">Março</a>
+                  <a href="#">Abril</a>
+                  <a href="#">Maio</a>
+                  <a href="#">Junho</a>
+                </div>
+            </div>
+            <a id="logout" href="{% url 'logout' %}">Logout</a>
+            <div id="user">Bem vindo, {{ user.username }}</div>
+        </div> 
+    <h1>Servidores - virtuais</h1>
+    <h3 style="text-align: center;">{{ data }}</h3>
+    <br/>
+    <p>
+        <div id="main">
+            <table  class="hosting">
+                <thead>
+                    <tr>
+                        <td style="font-weight: bold; color: red; text-align: center;">GOLD</td>
+                    </tr>
+                </thead>
+                <tr bgcolor=#2e72af>
+                        <th width=140>Recursos</th>
+                        <th width=180>Básico</th>
+                        <th width=120>Intermediário</th>
+                        <th width=75>Avançado</th>
+                        
+                </tr>
+                <tr >
+                        <td>PROCESSADOR</td>
+                        <td align="center">2vCPU</td>
+                        <td align="center">4vCPU</td>
+                        <td align="center">8vCPU</td>
+                </tr>
+                <tr>
+                        <td>MEMÚRIA RAM</td>
+                        <td align="center">4GB</td>
+                        <td align="center">8GB</td>
+                        <td align="center">16GB</td>
+                </tr>
+                <tr>
+                        <td>DISCO RÍGIDO</td>
+                        <td align="center">80GB</td>
+                        <td align="center">80GB</td>
+                        <td align="center">80GB</td>
+                </tr>
+                <tr>
+                        <td>REDE</td>
+                        <td align="center">2 x 1GBps</td>
+                        <td align="center">2 x 1GBps</td>
+                        <td align="center">2 x 1GBps</td>
+                </tr>
+                <tr>
+                        <td>SISTEMA OPERACIONAL</td>
+                        <td>Microsoft Windows Server 2016</td>
+                        <td>Microsoft Windows Server 2016</td>
+                        <td>Microsoft Windows Server 2016</td>
+                </tr>
+                <tr>
+                        <td>APLICÁVEL PARA:</td>
+                        <td>Gerenciamento e monitoração / serviços básicos de rede</td>
+                        <td width=300>Banco / Terminal Services / Softwares Corporativos / IIS</td>
+                        <td width=200>Exchange / SQL 2008 / Share Point</td>
+                </tr>
+                <tr>
+                    <td style="color: black; font-weight: bold">Valor (R$)</td>
+                    <td align="center">365,62</td>
+                    <td align="center">581,08</td>
+                    <td align="center">1022,02</td>
+                </tr>
+                <tr>
+                        <td style="color: black; font-weight: bold">Valor hora</td>
+                        <td align="center">0,51</td>
+                        <td align="center">0,81</td>
+                        <td align="center">1,42</td>
+                </tr>   
+            </table>
+        </div>
+    </p>
+    <br/>
+    <p>
+            <div id="main">
+                <table  class="hosting">
+                    <thead>
+                        <tr>
+                            <td style="font-weight: bold; color: red; text-align: center;">PLATINUM</td>
+                        </tr>
+                    </thead>
+                    <tr bgcolor=#2e72af>
+                            <th width=140>Recursos</th>
+                            <th width=180>Básico</th>
+                            <th width=120>Intermediário</th>
+                            <th width=75>Avançado</th>
+                            
+                    </tr>
+                    <tr >
+                            <td>PROCESSADOR</td>
+                            <td align="center">2vCPU</td>
+                            <td align="center">4vCPU</td>
+                            <td align="center">8vCPU</td>
+                    </tr>
+                    <tr>
+                            <td>MEMÚRIA RAM</td>
+                            <td align="center">4GB</td>
+                            <td align="center">8GB</td>
+                            <td align="center">16GB</td>
+                    </tr>
+                    <tr>
+                            <td>DISCO RÍGIDO</td>
+                            <td align="center">80GB SSD</td>
+                            <td align="center">80GB SSD</td>
+                            <td align="center">80GB SSD</td>
+                    </tr>
+                    <tr>
+                            <td>REDE</td>
+                            <td align="center">2 x 1GBps</td>
+                            <td align="center">2 x 1GBps</td>
+                            <td align="center">2 x 1GBps</td>
+                    </tr>
+                    <tr>
+                            <td>SISTEMA OPERACIONAL</td>
+                            <td>Microsoft Windows Server 2016</td>
+                            <td>Microsoft Windows Server 2016</td>
+                            <td>Microsoft Windows Server 2016</td>
+                    </tr>
+                    <tr>
+                            <td>APLICÁVEL PARA:</td>
+                            <td>Gerenciamento e monitoração / serviços básicos de rede</td>
+                            <td width=300>Banco / Terminal Services / Softwares Corporativos / IIS</td>
+                            <td width=200>Exchange / SQL 2008 / Share Point</td>
+                    </tr>
+                    <tr>
+                        <td style="color: black; font-weight: bold">Valor (R$)</td>
+                        <td align="center">548,43</td>
+                        <td align="center">871,62</td>
+                        <td align="center">1533,04</td>
+                    </tr>
+                    <tr>
+                            <td style="color: black; font-weight: bold">Valor hora</td>
+                            <td align="center">0,76</td>
+                            <td align="center">1,21</td>
+                            <td align="center">2,13</td>
+                    </tr>   
+                </table>
+            </div>
+        </p>
+        <br/>
+        <div id="main">
+            <table  class="hosting">
+                <tr bgcolor=#2e72af>
+                        <th width=140>PACOTE PLUS</th>
+                        <th width=180>Valor (R$)</th>
+                        
+                </tr>
+                <tr >
+                        <td>Memoória RAM (POR GB)</td>
+                        <td align="center">R$54,90</td>
+                </tr>
+                <tr>
+                        <td>Disco (POR GB)</td>
+                        <td align="center">R$0,70</td>
+                </tr>
+                <tr>
+                        <td>Disco SSD (POR GB)</td>
+                        <td align="center">1,06</td>
+                </tr>
+                <tr>
+                        <td>Processador (vCPU) Geração Atual</td>
+                        <td align="center">R$88,27</td>
+                </tr>
+                <tr>
+                        <td>Processador (vCPU) Geração Anterior</td>
+                        <td align="center">R$53,51</td>
+                </tr>  
+            </table>
+        </div>
+        <h2>SERVIDORES DEDICADOS</h2>
+        <div id="main">
+            <table  class="hosting">
+                <tr bgcolor=#2e72af>
+                        <th width=180>PACOTE</th>
+                        <th colspan="2">PACPTE SUPER AVANÇADO</th>
+                        <th colspan="2">PACOTE AVANÇADO</th>
+                        
+                </tr>
+                <tr bgcolor=#7778f0>
+                        <td></td>
+                        <th width=300 >CLUSTER de Banco de Dados</th>
+                        <th width=300 >CLUSTER de Banco de Dados BI</th>
+                        <th width=300 >CLUSTER de Aplicação MASTER ERP</th>
+                        <th width=300 >Banco de Dados Classic e Express</th>
+                </tr>
+                <tr >
+                        <td>Sizing para ERP</td>
+                        <td align="center"> 
+                            PROC: 2x Intel SIX
+                            <br/>
+                            <br/>
+                            MEM. RAM: 96 GB
+                            <br/>
+                            <br/>
+                            DISCO: 2 x SAS 146 GB 15K RPM
+                            <br/>
+                            <br/>
+                            Duas HBA's com velocidade de 8 GB
+                            <br/>
+                            <br/>
+                            REDE: 4 x 1Gbps </td>
+                        <td align="center"> 
+                            PROC: 2x Intel SIX
+                            <br/>
+                            <br/>
+                            MEM. RAM: 64 GB
+                            <br/>
+                            <br/>
+                            DISCO: 2 x SAS 146 GB 15K RPM
+                            <br/>
+                            <br/>
+                            Duas HBA's com velocidade de 8 GB
+                            <br/>
+                            <br/>
+                            REDE: 4 x 1Gbps </td>
+                        <td align="center"> 
+                            PROC: 2x Intel SIX
+                            <br/>
+                            <br/>
+                            MEM. RAM: 32 GB
+                            <br/>
+                            <br/>
+                            DISCO: 2 x SAS 146 GB 15K RPM
+                            <br/>
+                            <br/>
+                            Duas HBA's com velocidade de 8 GB
+                            <br/>
+                            <br/>
+                            REDE: 4 x 1Gbps </td>
+                        <td align="center"> 
+                            PROC: 2x Intel QUAD
+                            <br/>
+                            <br/>
+                            MEM. RAM: 12 GB
+                            <br/>
+                            <br/>
+                            DISCO: 2 x 600GB SAS 10K RPM
+                            <br/>
+                            <br/>
+                            REDE: 2 x 1Gbps </td>
+                </tr>
+                <tr>
+                        <td>VALOR</td>
+                        <td align="center">R$ 3.616,56</td>
+                        <td align="center">R$ 3.150,00</td>
+                        <td align="center">R$ 2.400,00</td>
+                        <td align="center">R$ 2.100,00</td>
+                </tr>
+                <tr>
+                        <td>Tx. Instalação</td>
+                        <td align="center">R$ 800,00</td>
+                        <td align="center">R$ 800,00</td>
+                        <td align="center">R$ 800,00</td>
+                        <td align="center">R$ 800,00</td>
+                </tr>
+                <tr style="font-weight: bolder;">
+                        <td>Total</td>
+                        <td align="center">R$ 4.416,56</td>
+                        <td align="center">R$ 3.950,00</td>
+                        <td align="center">R$ 3.200,00</td>
+                        <td align="center">R$ 2.900,00</td>
+                </tr>
+                <tr>
+                        <td style="background-color: black;" colspan="6"></td>
+                </tr>
+                <tr>
+                        <td>VALOR 1º mês</td>
+                        <td align="center">R$ 4.416,56</td>
+                        <td align="center">R$ 3.950,00</td>
+                        <td align="center">R$ 3.200,00</td>
+                        <td align="center">R$ 2.900,00</td>
+                </tr>  
+                <tr>
+                        <td>Desconto 5%</td>
+                        <td align="center">R$ 220,83</td>
+                        <td align="center">R$ 197,50</td>
+                        <td align="center">R$ 160,00</td>
+                        <td align="center">R$ 145,00</td>
+                </tr>
+                <tr>
+                        <td>VALOR 1º mês</td>
+                        <td align="center">R$ 4.195,73</td>
+                        <td align="center">R$ 3.752,50</td>
+                        <td align="center">R$ 3.040,00</td>
+                        <td align="center">R$ 2.755,00</td>
+                </tr>
+                <tr>
+                        <td style="background-color: black;" colspan="6"></td>
+                </tr>
+                <tr>
+                        <td>Valor demais meses</td>
+                        <td align="center">R$ 3.616,56</td>
+                        <td align="center">R$ 3.150,00</td>
+                        <td align="center">R$ 2.400,00</td>
+                        <td align="center">R$ 2.100,00</td>
+                </tr>
+                <tr>
+                        <td>Desconto 5%</td>
+                        <td align="center">R$ 180,83</td>
+                        <td align="center">R$ 157,50</td>
+                        <td align="center">R$ 120,00</td>
+                        <td align="center">R$ 105,00</td>
+                </tr>
+                <tr>
+                        <td>Valor Demais meses</td>
+                        <td align="center">R$ 3.795,46</td>
+                        <td align="center">R$ 3.305,81</td>
+                        <td align="center">R$ 2.518,72</td>
+                        <td align="center">R$ 2.203,88</td>
+                </tr>
+                <tr style="color: black; font-weight: bold;">
+                        <td>Valor 2017 (IPCA 6,5%)</td>
+                        <td align="center">R$ 4.042,16</td>
+                        <td align="center">R$ 3.520,69</td>
+                        <td align="center">R$ 2.682,44</td>
+                        <td align="center">R$ 2.347,13</td>
+                </tr>
+                <tr style="color: red; font-weight: bold;">
+                        <td>Valor Prosto 2019</td>
+                        <td align="center">R$3.233,73</td>
+                        <td align="center">R$2.816,55</td>
+                        <td align="center">R$2.145,95</td>
+                        <td align="center">R$1.877,71</td>
+                </tr>
+            </table>
+        </div>
+        <h2>Tabela de Serviços Datacenter SENAI</h2>
+        <div id="main">
+            <table  class="hosting">
+                <tr bgcolor=#2e72af>
+                    <th width=180>DESCRIÇÃO</th>
+                    <th width=280>VALOR (R$)</th>
+                    <th>VALOR 2018</th>
+                        
+                </tr>
+                <tr bgcolor=#7778f0>
+                    <th colspan="3">Backup de Arquivos</th>
+                </tr>
+                <tr >
+                    <td >Backup de arquivos de usuários por 1GB</td>
+                    <td align="center">R$ 1,00 mensal</td>
+                    <td align="center">R$ 1,17</td>
+                </tr>
+                <tr>
+                    <td >Backup de arquivos de sistema/aplicação por 1GB</td>
+                    <td align="center">R$ 1,00 mensal</td>
+                    <td align="center">R$ 1,17</td>
+                </tr>
+                <tr>
+                    <td>Restore de arquivos de usuários ou sistema/aplicação por chamado</td>
+                    <td align="center">R$ 50,00</td>
+                    <td align="center">R$ 58,83</td>
+                </tr>
+                <tr bgcolor=#7778f0>
+                    <th colspan="3">Backup de Banco de dados</th>
+                </tr>
+                <tr>
+                    <td>Backup de banco de dados, Exchange Server e SQL Server por 1GB<br/>(volumetria de dados)</td>
+                    <td align="center">R$ 3,20</td>
+                    <td align="center">R$ 3,77</td>
+                </tr>  
+                <tr>
+                    <td rowspan="2">Restore de bancos de dados</td>
+                    <td align="center">1° Restore do mês = R$ 0,00</td>
+                    <td align="center">- </td>
+                </tr>
+                <tr>
+                    <td align="center">A partir do 2° restore do mês = R$85,00</td>
+                    <td align="center">R$ 100,00</td>
+                </tr>
+                <tr bgcolor=#7778f0>
+                    <th colspan="3">Armazenagem de Fitas LTO</th>
+                </tr>
+                <tr>
+                    <td>Armazenagem de fitas LTO durante o período de vigência de contrato. Não faz parte do escopo da CONTRATADA o serviço de transferência de dados entre as filas LTO armazenadas.</td>
+                    <td align="center">R$ 1,80 por fita LTO 5 ou superior</td>
+                    <td align="center">R$ 2,12</td>
+                </tr>  
+                <tr bgcolor=#7778f0>
+                        <th colspan="3">Máquina virtual</th>
+                </tr>
+                <tr>
+                    <td>Backup de máquina virtual por 1GB<br/>(volumetria), com retenção de 3 dias</td>
+                    <td align="center" >R$ 1,00</td>
+                    <td align="center" >R$ 1,17 </td>
+                </tr>
+                <tr>
+                    <td rowspan="2">Snapshot de Máquina Virtural</td>
+                    <td align="center">Primeiro snpashot do mês = R$ 0,00</td>
+                    <td align="center"></td>
+                </tr>
+                <tr>
+                    <td align="center">A partir do 2° snapshot do mês = 5% do valor do servidor</td>
+                    <td align="center"></td>
+                </tr>
+                <tr bgcolor=#7778f0>
+                    <th colspan="3">Serviços de redes</th>
+                </tr>
+                <tr>
+                    <td>Serviços especializados em configuração de regras de Firewall (CISCO ASA)</td>
+                    <td align="center">R$ 100,00/hora</td>
+                    <td align="center">R$ 117,65</td>
+                </tr>
+                <tr>
+                    <td>Serviços especializados em configuração Equipamentos CISCO</td>
+                    <td align="center">R$ 100,00/hora</td>
+                    <td align="center">R$ 117,65</td>
+                </tr>
+                <tr>
+                    <td>Serviços especializados Moving</td>
+                    <td align="center">R$ 100,00/hora</td>
+                    <td align="center">R$ 117,65</td>
+                </tr>
+                <tr bgcolor=#7778f0>
+                    <th colspan="3">Relatórios</th>
+                </tr>
+                <tr>
+                    <td style="font-weight: bolder" align="center">DESCRIÇÃO</td>
+                    <td align="center" style="font-weight: bolder">VALOR</td>
+                    <td align="center"></td>
+                </tr>
+                <tr>
+                    <td>* Desempenho mensal documentando o desempenho do contrato com relação aos  Níveis de Serviços.</td>
+                    <td align="center">R$ 0,00</td>
+                    <td align="center"></td>
+                </tr>
+                <tr>
+                    <td>* Mudanças em curso e planejadas realizadas durante o mês anterior.</td>
+                    <td align="center">R$ 0,00</td>
+                    <td align="center"></td>
+                </tr>
+                <tr>
+                    <td>* Documentação de topologia da rede em caso de alteração.</td>
+                    <td align="center">R$ 0,00</td>
+                    <td align="center"></td>
+                </tr>
+                <tr bgcolor=#7778f0>
+                    <th colspan="3">Gestão de Projetos</th>
+                </tr>
+                <tr>
+                    <td>Horas de gerenciamento do Projeto (participação de reuniões, análises de viabilidade de mudanças, etc).</td>
+                    <td align="center">R$ 95,00/hora.<br/>Sendo que, duas (02) horas/mês serão gratuitas e as demais serão cobradas</td>
+                    <td align="center">R$ 111,77</td>
+                </tr>
+                <tr bgcolor=#7778f0>
+                    <th colspan="3">Aluguel de espaço no Rack (Colocation)</th>
+                </tr>
+                <tr>
+                    <td>Colocation de equipamentos dos CONTRATANTES alocados n Datacenter SENAI.</td>
+                    <td align="center">R$ 300,00/hora para cada Unidade de Rack (U) alocado + Consumo de energia (qtd.kW de consumo de energia do equipamento x 277,00/mês).</td>
+                    <td align="center">R$ 352,95</td>
+                </tr>
+            </table>
+        </div>
+    {% else %}
+    <p>You are not logged in</p>
+    <a class="button" href="{% url 'login' %}">Login</a>
+    {% endif %}
+    {% endblock %}
+</body>
+
