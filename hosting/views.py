@@ -26,7 +26,6 @@ class HostingCreate(CreateView):
         form.instance.valor_proc_adicional = form.instance.proc_adicional * 53.5
 
         form.instance.valor_total = form.instance.valor_tabela+form.instance.valor_disco_adicional+form.instance.valor_memoria_adicional+form.instance.valor_proc_adicional
-        form.instance.hosting = hosting 
         return super(HostingCreate, self).form_valid(form)
 
 def valorTabela(self, perfil, recurso):
