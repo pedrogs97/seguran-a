@@ -1,12 +1,14 @@
 from django.db import models
+import datetime
+# from django_mysql.models import JSONField
 
 # Create your models here.
 class Hosting(models.Model):
     empresa = models.CharField(max_length=50)
     server = models.CharField(max_length=100)
     descricao = models.CharField(max_length=150, blank=True, verbose_name="Descrição")
-    cpu = models.IntegerField(default=0)
-    memoria = models.IntegerField(default=0, verbose_name="Memória")
+    cpu = models.PositiveIntegerField(default=0)
+    memoria = models.PositiveIntegerField(default=0, verbose_name="Memória")
     disco = models.IntegerField(default=0)
     tipo_maq = models.CharField(max_length=20, blank=True, verbose_name="Tipo de Máquina")
     tipo = models.IntegerField(blank=True)
@@ -22,7 +24,9 @@ class Hosting(models.Model):
     valor_total = models.DecimalField(max_digits=10,decimal_places=2, blank=True)
     hosting_senai = models.BooleanField(verbose_name="Hosting SENAI", blank=True, default=False)
     hosting_fieb = models.BooleanField(verbose_name="Hosting FIEB", blank=True, default=False)
-
+    data_insert = models.DateField(default= None, blank=True)
+    data_delet = models.DateField(default=None, blank=True)
+    
 class Servicos_adicionais(models.Model):
     casa = models.CharField(max_length=50, blank=True)
     descricao = models.CharField(max_length=50, verbose_name="Descrição")
@@ -39,5 +43,3 @@ class Backup_dados(models.Model):
     volume = models.DecimalField(max_digits=12,decimal_places=2, blank=True, default=0.00)
     quantidade = models.IntegerField(blank=True, default=0)
     valor = models.DecimalField(max_digits=10,decimal_places=2, blank=True)
-
-# class Precos(models.Model):

@@ -190,7 +190,10 @@
     <div class="topnav">
             <a class="active" href="{% url "hosting_list" %}">SENAI</a>
             <a href="{% url "hosting_fieb" %}">FIEB</a>
-            <a>Financeiro</a>
+            <a href="{% url "servicos" %}">Serviços adicionais</a>
+            {% if teste == 'SENAI' %}
+            <a href="{% url "financeiro_senai" %}">Financeiro</a>
+            {% endif %}
             <a href="{% url "tabela_preco" %}">Tabela de Preços</a>
             <div class="dropdown">
                 <button class="dropbtn">Anteriores
@@ -236,6 +239,7 @@
             </tr>
             {% for hosting in object_list %}
                 <tr id="row">
+                        {% if hosting.hosting_senai %}
                         <td>{{ hosting.empresa }}</td>
                         <td>{{ hosting.server }}</td>
                         <td align="center">{{ hosting.descricao }}</td>
@@ -256,6 +260,7 @@
                         <td align="right">{{ hosting.valor_total }}</td>
                         <td align="center"><a class="remove" href="{% url "hosting_delete" hosting.id %}">x</a></td>
                         <td align="center"><a class="remove" href="{% url "hosting_edit" hosting.id %}">Editar</a></td>
+                        {% endif %}
                 </tr>
             {% empty %}
                 <li>Nothing yet.</li>
@@ -268,31 +273,20 @@
             </footer>
         </table>
     </div>
-    <div style="margin-left: 500; margin-top: -10px;">
-        <table width=700  class="hosting">
+    
+    <div >
+        <table  style="margin-left: 500; margin-top: 30px;" class="hosting">
             <TR bgcolor=#7778f0>
-                <th colspan="6">SERVIÇÕES ADICIONAIS</th>
+                <th colspan="2">PRECIFICAÇÃO DO AMBIENTE SENAI</th>
             </TR>
             <tr bgcolor=#2e72af>
-                    <th>CASA</th>
-                    <th width=100>DESCRIÇÃO</th>
-                    <th width=180>TICKET</th>
-                    <th width=100>DURAÇÃO</th>
-                    <th width=180>OBSERVAÇÃO</th>
-                    <th width=100>RESPONSÁVEL</th>
-                    <th width=180>VALOR</th>
+                    <th width=100>CLIENTE</th>
+                    <th width=180>TOTAL</th>
             </tr>
-            {% for item in servico_list %}
+            {% for item in total_empresa %}
             <tr id="row" ></tr>
-                <td>{{ item.casa }}</td>
-                <td > {{ item.descricao }}</td>
-                <td align="right"> {{ item.ticket }}</td>
-                <td align="right"> {{ item.duracao }}</td>
-                <td align="right"> {{ item.observacao }}</td>
-                <td align="right"> {{ item.responsavel }}</td>
+                <td > {{ item.empresa }}</td>
                 <td align="right">R$ {{ item.valor }}</td>
-                <td align="center"><a class="remove" href="{% url "servicos_delete" item.id %}">x</a></td>
-                <td align="center"><a class="remove" href="{% url "servicos_edit" item.id %}">Editar</a></td>
             </tr>
             {% empty %}
                 <li>Nothing yet.</li>
@@ -300,114 +294,19 @@
             <tfooter>
                 <tr>
                     <td style="font-weight: bold;">Total</td>
-                    <td align="center" style="font-weight: bold;">R$ {{ total_servico }}</td>
+                    <td align="center" style="font-weight: bold;">R$ {{ total }}</td>
                 </tr>
+                <tr>
+                    <td style="background-color: black;" colspan="2"></td>
+                    
+                </tr>
+                <tr>
+                    <td style="font-weight: bold;">Total por ANO</td>
+                    <td align="center" style="font-weight: bold;">R$ {{ totalAno }}</td>
+                </tr> 
             </footer>
         </table>
-        </div>
-        <a class="button" style="margin-left: 1240px;" href="{% url 'servicos_adicionais' %}">Novo Serviço</a>
-        <div style="margin-left: 500; margin-top: 50px;">
-                <table  class="hosting">
-                    <TR bgcolor=#7778f0>
-                        <th colspan="6">BACKUP DE DADOS</th>
-                    </TR>
-                    <tr bgcolor=#2e72af>
-                            <th>CASA</th>
-                            <th width=100>DESCRIÇÃO</th>
-                            <th width=180>VALOR UNITÁRIO</th>
-                            <th width=100>VOLUME ARMAZENAMENTO(EM GB)</th>
-                            <th width=180>QUANTIDADE</th>
-                            <th width=210>VALOR BACKUP</th>
-                    </tr>
-                    {% for item in backup_list %}
-                    <tr id="row" ></tr>
-                        <td>{{ item.casa }}</td>
-                        <td > {{ item.descricao }}</td>
-                        <td align="center"> {{ item.valorUnitario }}</td>
-                        <td align="center"> {{ item.volume }}</td>
-                        <td align="center"> {{ item.quantidade }}</td>
-                        <td align="right">R$ {{ item.valor }}</td>
-                        <td align="center"><a class="remove" href="{% url "backup_delete" item.id %}">x</a></td>
-                        <td align="center"><a class="remove" href="{% url "backup_edit" item.id %}">Editar</a></td>
-                    </tr>
-                    {% empty %}
-                        <li>Nothing yet.</li>
-                    {% endfor %}
-                    <tfooter>
-                        <tr>
-                            <td style="font-weight: bold;">Total</td>
-                            <td align="center" style="font-weight: bold;" width=300>R$ {{ total_backup }}</td>
-                        </tr>
-                    </footer>
-                </table>
-                </div>
-                <a class="button" href="{% url 'backup_adicionais' %}">Novo Bakcup</a>
-                <div >
-                    <table  style="margin-left: 500; margin-top: 30px;" class="hosting">
-                        <TR bgcolor=#7778f0>
-                            <th colspan="2">PRECIFICAÇÃO DO AMBIENTE SENAI</th>
-                        </TR>
-                        <tr bgcolor=#2e72af>
-                                <th width=100>CLIENTE</th>
-                                <th width=180>TOTAL</th>
-                        </tr>
-                        {% for item in total_empresa %}
-                        <tr id="row" ></tr>
-                            <td > {{ item.empresa }}</td>
-                            <td align="right">R$ {{ item.valor }}</td>
-                        </tr>
-                        {% empty %}
-                            <li>Nothing yet.</li>
-                        {% endfor %}
-                        <tfooter>
-                            <tr>
-                                <td style="font-weight: bold;">Total</td>
-                                <td align="center" style="font-weight: bold;">R$ {{ total }}</td>
-                            </tr>
-                            <tr>
-                                <td style="background-color: black;" colspan="2"></td>
-                                
-                            </tr>
-                            <tr>
-                                <td style="font-weight: bold;">Total por ANO</td>
-                                <td align="center" style="font-weight: bold;">R$ {{ totalAno }}</td>
-                            </tr> 
-                        </footer>
-                    </table>
-                </div>
-                <div >
-                        <table  style="margin-left: 900; margin-top: -400px;" class="hosting">
-                            <TR bgcolor=#7778f0>
-                                <th colspan="2">TOTAL SERVIÇO</th>
-                            </TR>
-                            <tr bgcolor=#2e72af>
-                                    <th width=100>CASA</th>
-                                    <th width=180>VALOR MENSAL</th>
-                            </tr>
-                            <tr id="row" ></tr>
-                                <td >SENAI</td>
-                                <td align="right">R$ {{ casa_senai }}</td>
-                            </tr>
-                            <tr id="row" ></tr>
-                                <td >SESI</td>
-                                <td align="right">R$ {{ casa_sesi }}</td>
-                            </tr>
-                            <tr id="row" ></tr>
-                                <td >FIEB</td>
-                                <td align="right">R$ {{ casa_fieb }}</td>
-                            </tr>
-                            <tr id="row" ></tr>
-                                <td >IEL</td>
-                                <td align="right">R$ {{ casa_iel }}</td>
-                            </tr>
-                            <tfoot>
-                                    <tr><td style="background-color: black;" colspan="2"></td></tr>
-                                    <tr>
-                                            <td align="center" style="font-weight: bold; color: black;" width=300 colspan="2">Valor total de Serviços adicionais: R$ {{ total_adicionais }}</td>
-                                    </tr>
-                            </tfoot>
-                        </table>
-                    </div>
+    </div>
     {% else %}
     <p>You are not logged in</p>
     <a class="button" href="{% url 'login' %}">Login</a>

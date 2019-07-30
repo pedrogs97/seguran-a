@@ -185,7 +185,10 @@
     <div class="topnav">
             <a href="{% url "hosting_list" %}">SENAI</a>
             <a href="{% url "hosting_fieb" %}">FIEB</a>
-            <a>Financeiro</a>
+            <a href="{% url "servicos" %}">Serviços adicionais</a>
+            {% if teste == 'SENAI' %}
+            <a href="{% url "financeiro_senai" %}">Financeiro</a>
+            {% endif %}
             <a class="active" href="{% url "tabela_preco" %}">Tabela de Preços</a>
             <div class="dropdown">
                 <button class="dropbtn">Anteriores
@@ -204,7 +207,7 @@
             <div id="user">Bem vindo, {{ user.username }}</div>
         </div> 
     <h1>Servidores - virtuais</h1>
-    <h3 style="text-align: center;">{{ data }}</h3>
+    <h2 style="text-align: center;">{{ data }}</h2>
     <br/>
     <p>
         <div id="main">

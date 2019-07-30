@@ -189,10 +189,10 @@
     {% if user.is_authenticated %}
     <div class="topnav">
             <a href="{% url "hosting_list" %}">SENAI</a>
-            <a class="active" href="{% url "hosting_fieb" %}">FIEB</a>
+            <a href="{% url "hosting_fieb" %}">FIEB</a>
             <a href="{% url "servicos" %}">Serviços adicionais</a>
-            {% if teste == 'SENAI' %}
-            <a href="{% url "financeiro_senai" %}">Financeiro</a>
+            {% if tabela == 'SENAI' %}
+            <a class="active" href="{% url "hosting_list" %}">Financeiro</a>
             {% endif %}
             <a href="{% url "tabela_preco" %}">Tabela de Preços</a>
             <div class="dropdown">
@@ -211,8 +211,8 @@
             <a id="logout" href="{% url 'logout' %}">Logout</a>
             <div id="user">Bem vindo, {{ user.username }}</div>
         </div> 
-    <h1>AMBIENTE FIEB</h1>
-    <h2>{{ mes }}</h2>
+    <h1>FINANCEIRO SENAI</h1>
+    <h2>{{ data }}</h2>
     <br/>
     <a class="button" style="margin-left: 1650px;" href="{% url "hosting_create" %}" >Novo Servidor</a>
     <div id="main" style="margin-bottom: 50px;">
@@ -237,9 +237,9 @@
                     <th width=130>Valor Disco Adicional (R$)</th>
                     <th width=130>Valor Total (R$)</th>
             </tr>
-            {% for hosting in hosting_list %}
+            {% for item in valor_empresa %}
                 <tr id="row">
-                        {% if hosting.hosting_fieb %}
+                        {% if hosting.hosting_senai %}
                         <td>{{ hosting.empresa }}</td>
                         <td>{{ hosting.server }}</td>
                         <td align="center">{{ hosting.descricao }}</td>
@@ -273,6 +273,7 @@
             </footer>
         </table>
     </div>
+    
     <div >
         <table  style="margin-left: 500; margin-top: 30px;" class="hosting">
             <TR bgcolor=#7778f0>

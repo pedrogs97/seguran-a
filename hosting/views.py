@@ -10,17 +10,80 @@ from .tables import HostingTable, SimpleTable
 from django.shortcuts import redirect
 import django_tables2
 import datetime
+from django.core import serializers
 
 # Create your views here.
 def hostingFieb(request):
-    data = datetime.date.today()
-    return render(request, 'hosting/hosting_fieb.html', {'data': data})
+    data = datetime.date.today().strftime("%B")
+    hosting_list = []
+    for item in Hosting.objects.all():
+        if item.hosting_fieb:
+            hosting_list.append(item)
+    total= 0
+    list_dic = []
+    total_empresa = 0
+    todas_empresas = []
+
+    for item in hosting_list:
+        todas_empresas.append(item.empresa)
+
+    for i in empresas(todas_empresas) :
+        dic = {}
+        dic['empresa'] = i
+        total_empresa = 0
+        for item in hosting_list :
+            if(i == item.empresa) :
+                total_empresa = item.valor_total + total_empresa
+        dic['valor'] = total_empresa
+        list_dic.append(dic)
+
+    for item in hosting_list :
+        total = item.valor_total + total
+
+
+    return render(request, 'hosting/hosting_fieb.html', {'mes': data, 'total': total, 'totalAno': total*12,'total_empresa': list_dic, 'hosting_list': hosting_list, 'tabela': 'SENAI'})
+
+def servicos_adicionais(request):
+    data = datetime.date.today().strftime("%B")
+    servico_list = Servicos_adicionais.objects.all()
+    backup_list = Backup_dados.objects.all()
+
+    
+    total_servico = 0
+    total_backup = 0
+    total_casa_senai = 0
+    total_casa_fieb = 0
+    total_casa_sesi = 0
+    total_casa_iel = 0
+    for item in backup_list :
+        if(item.casa == 'SENAI') :
+            total_casa_senai = item.valor + total_casa_senai
+        if(item.casa == 'FIEB') :
+            total_casa_fieb = item.valor + total_casa_fieb
+        if(item.casa == 'SESI'):
+            total_casa_sesi = item.valor + total_casa_sesi
+        if(item.casa == 'IEL'):
+            total_casa_iel = item.valor + total_casa_iel
+        total_backup = item.valor + total_backup
+
+    for item in servico_list :
+        if(item.casa == 'SENAI') :
+            total_casa_senai = item.valor + total_casa_senai
+        if(item.casa == 'FIEB') :
+            total_casa_fieb = item.valor + total_casa_fieb
+        if(item.casa == 'SESI'):
+            total_casa_sesi = item.valor + total_casa_sesi
+        if(item.casa == 'IEL'):
+            total_casa_iel = item.valor + total_casa_iel
+        total_servico = item.valor + total_servico
+    #  'mes': data, 'total_servico': total_servico, 'total_backup': total_backup, 'total_adicionais': total_servico + total_backup, 'casa_senai': total_casa_senai, 'casa_sesi': total_casa_sesi, 'casa_fieb': total_casa_fieb, 'casa_iel': total_casa_iel, 'backup_list': backup_list, 'servico_list': servico_list}
+    return render(request, 'hosting/servicos.html', {'mes': data, 'total_servico': total_servico, 'total_backup': total_backup, 'total_adicionais': total_servico + total_backup, 'casa_senai': total_casa_senai, 'casa_sesi': total_casa_sesi, 'casa_fieb': total_casa_fieb, 'casa_iel': total_casa_iel, 'backup_list': backup_list, 'servico_list': servico_list})
 
 def redirectSenai(request):
     return redirect('hosting_list')
 
 def tabelaPrecos(request):
-    data = datetime.date.today()
+    data = datetime.date.today().strftime("%B")
     return render(request, 'hosting/tabela_preco.html', {'data': data})
 
 def empresas(todas_empresas):
@@ -32,53 +95,60 @@ def empresas(todas_empresas):
             emp.append(item)
     return emp
 
+def financeiroSENAI(request):
+    data = datetime.date.today().strftime("%B")
+    hosting_list = []
+
+    for item in Hosting.objects.all():
+        if item.hosting_senai:
+            hosting_list.append(item)
+
+    list_dic = []
+    total_empresa = 0
+    todas_empresas = []
+    for item in hosting_list:
+        todas_empresas.append(item.empresa)
+
+    for i in empresas(todas_empresas) :
+        dic = {}
+        dic['empresa'] = i
+        total_empresa = 0
+        for item in hosting_list :
+            if(i == item.empresa) :
+                total_empresa = item.valor_total + total_empresa
+        dic['valor'] = total_empresa
+        list_dic.append(dic)
+
+
+
+    return render(request, 'hosting/financeiro_senai.html', {'data': data, 'valor_empresa': list_dic, 'tabela': 'SENAI'})
+
 class HostingList(ListView):
     model = Hosting
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super(HostingList, self).get_context_data(**kwargs)
-        # Add in a QuerySet of all the books
-        context['backup_list'] = Backup_dados.objects.all()
-        context['servico_list'] = Servicos_adicionais.objects.all()
+        # Add in a QuerySet of all the 
+        hosting_list = []
+
+        for item in Hosting.objects.all():
+            if item.hosting_senai:
+                hosting_list.append(item)
         context['mes'] = datetime.date.today().strftime("%B")
-        context['hosting_list'] = Hosting.objects.all()
+        context['hosting_list'] = hosting_list
         total= 0
         list_dic = []
         total_empresa = 0
-        total_servico = 0
-        total_backup = 0
-        total_casa_senai = 0
-        total_casa_fieb = 0
-        total_casa_sesi = 0
-        total_casa_iel = 0
-        for item in context['backup_list'] :
-            if(item.casa == 'SENAI') :
-                total_casa_senai = item.valor + total_casa_senai
-            if(item.casa == 'FIEB') :
-                total_casa_fieb = item.valor + total_casa_fieb
-            if(item.casa == 'SESI'):
-                total_casa_sesi = item.valor + total_casa_sesi
-            if(item.casa == 'IEL'):
-                total_casa_iel = item.valor + total_casa_iel
-            total_backup = item.valor + total_backup
+        todas_empresas = []
+        for item in context['hosting_list']:
+            todas_empresas.append(item.empresa)
 
-        for item in context['servico_list'] :
-            if(item.casa == 'SENAI') :
-                total_casa_senai = item.valor + total_casa_senai
-            if(item.casa == 'FIEB') :
-                total_casa_fieb = item.valor + total_casa_fieb
-            if(item.casa == 'SESI'):
-                total_casa_sesi = item.valor + total_casa_sesi
-            if(item.casa == 'IEL'):
-                total_casa_iel = item.valor + total_casa_iel
-            total_servico = item.valor + total_servico
-
-        for i in empresas(Hosting.objects.values('empresa')) :
+        for i in empresas(todas_empresas) :
             dic = {}
-            dic['empresa'] = i['empresa']
+            dic['empresa'] = i
             total_empresa = 0
             for item in context['hosting_list'] :
-                if(i['empresa'] == item.empresa) :
+                if(i == item.empresa) :
                     total_empresa = item.valor_total + total_empresa
             dic['valor'] = total_empresa
             list_dic.append(dic)
@@ -89,13 +159,8 @@ class HostingList(ListView):
         context['total'] = total
         context['totalAno'] = total*12
         context['total_empresa'] = list_dic
-        context['total_servico'] = total_servico
-        context['total_backup'] = total_backup
-        context['total_adicionais'] = total_servico + total_backup
-        context['casa_senai'] = total_casa_senai
-        context['casa_sesi'] =  total_casa_sesi
-        context['casa_fieb'] = total_casa_fieb
-        context['casa_iel'] = total_casa_iel
+        context['tabela'] = 'SENAI'
+        # context['teste'] = teste
         return context
 
 class HostingCreate(CreateView):
@@ -104,9 +169,8 @@ class HostingCreate(CreateView):
     success_url = reverse_lazy('hosting_list')
 
     def form_valid(self, form):
+        form.instance.data_insert = datetime.date.today()
         form.instance.empresa = form.instance.empresa.upper()
-        if(form.instance.hosting_senai):
-            print("oi")
         form.instance.tipo_maq = form.instance.tipo_maq.capitalize()
         form.instance.tipo = tipo(form.instance.cpu, form.instance.memoria)
         form.instance.recurso = recurso(form.instance.tipo)
@@ -238,7 +302,7 @@ class HostingDelete(DeleteView):
 class Sevicos_adicionaisCreate (CreateView):
     model = Servicos_adicionais
     fields = ['casa', 'descricao', 'ticket','duracao', 'observacao', 'responsavel', 'valor']
-    success_url = reverse_lazy('hosting_list')
+    success_url = reverse_lazy('servicos')
     def form_valid(self, form):
         form.instance.casa = form.instance.casa.upper()
         return super(Sevicos_adicionaisCreate, self).form_valid(form)
@@ -246,7 +310,7 @@ class Sevicos_adicionaisCreate (CreateView):
 class Servicos_adicionaisUpdate(UpdateView):
     model = Servicos_adicionais
     fields = ['casa', 'descricao', 'ticket','duracao', 'observacao', 'responsavel', 'valor']
-    success_url = reverse_lazy('hosting_list')
+    success_url = reverse_lazy('servicos')
     def form_valid(self, form):
         form.instance.casa = form.instance.casa.upper()
         return super(Servicos_adicionaisUpdate, self).form_valid(form)
@@ -258,7 +322,7 @@ class Servicos_adicionaisDelete(DeleteView):
 class Backup_dadosCreate(CreateView):
     model = Backup_dados
     fields = ['casa', 'descricao', 'valorUnitario','volume', 'quantidade']
-    success_url = reverse_lazy('hosting_list')
+    success_url = reverse_lazy('servicos')
 
     def form_valid(self, form):
         form.instance.casa = form.instance.casa.upper()
@@ -271,7 +335,7 @@ class Backup_dadosCreate(CreateView):
 class Backup_dadosUpdate(UpdateView):
     model = Backup_dados
     fields = ['casa', 'descricao', 'valorUnitario','volume', 'quantidade']
-    success_url = reverse_lazy('hosting_list')
+    success_url = reverse_lazy('servicos')
     def form_valid(self, form):
         form.instance.casa = form.instance.casa.upper()
         if(form.instance.quantidade == 0):

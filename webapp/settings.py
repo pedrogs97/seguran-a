@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'hosting',
+    'django_mysql',
     'django_tables2',
 ]
 
@@ -84,6 +85,10 @@ DATABASES = {
         'PASSWORD': 'dbpass123',
         'HOST': 'localhost',
         'PORT': '',
+        'OPTIONS': {
+            # Tell MySQLdb to connect with 'utf8mb4' character set
+            'charset': 'utf8mb4',
+        },
     }
 }
 
