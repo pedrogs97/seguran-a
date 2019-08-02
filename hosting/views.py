@@ -11,13 +11,18 @@ from django.shortcuts import redirect
 import django_tables2
 import datetime
 from django.core import serializers
+from django.http import HttpResponseRedirect
 
 # Create your views here.
+def add_client(request):
+    return render(request, 'hosting/add_client.html')
+
 def hostingFieb(request):
     data = datetime.date.today().strftime("%B")
     hosting_list = []
+    date = datetime.date(year = 2000, month= 1, day = 1)
     for item in Hosting.objects.all():
-        if item.hosting_fieb:
+        if item.hosting_fieb & (item.data_delete==date):
             hosting_list.append(item)
     total= 0
     list_dic = []
@@ -45,10 +50,18 @@ def hostingFieb(request):
 
 def servicos_adicionais(request):
     data = datetime.date.today().strftime("%B")
-    servico_list = Servicos_adicionais.objects.all()
-    backup_list = Backup_dados.objects.all()
+    servico_list = []
+    backup_list = []
+    date = datetime.date(year = 2000, month= 1, day = 1)
 
-    
+    for item in Servicos_adicionais.objects.all():
+        if (item.data_delete==date):
+            servico_list.append(item)
+
+    for item in Backup_dados.objects.all():
+        if (item.data_delete==date):
+            backup_list.append(item)
+
     total_servico = 0
     total_backup = 0
     total_casa_senai = 0
@@ -56,27 +69,28 @@ def servicos_adicionais(request):
     total_casa_sesi = 0
     total_casa_iel = 0
     for item in backup_list :
-        if(item.casa == 'SENAI') :
+        print(item.data_delete)
+        if(item.casa == 'SENAI') & (item.data_delete==date) :
             total_casa_senai = item.valor + total_casa_senai
-        if(item.casa == 'FIEB') :
+        if(item.casa == 'FIEB') & (item.data_delete==date) :
             total_casa_fieb = item.valor + total_casa_fieb
-        if(item.casa == 'SESI'):
+        if(item.casa == 'SESI') & (item.data_delete==date) :
             total_casa_sesi = item.valor + total_casa_sesi
-        if(item.casa == 'IEL'):
+        if(item.casa == 'IEL') & (item.data_delete==date) :
             total_casa_iel = item.valor + total_casa_iel
         total_backup = item.valor + total_backup
 
     for item in servico_list :
-        if(item.casa == 'SENAI') :
+        if(item.casa == 'SENAI') & (item.data_delete==date) :
             total_casa_senai = item.valor + total_casa_senai
-        if(item.casa == 'FIEB') :
+        if(item.casa == 'FIEB') & (item.data_delete==date) :
             total_casa_fieb = item.valor + total_casa_fieb
-        if(item.casa == 'SESI'):
+        if(item.casa == 'SESI') & (item.data_delete==date) :
             total_casa_sesi = item.valor + total_casa_sesi
-        if(item.casa == 'IEL'):
+        if(item.casa == 'IEL') & (item.data_delete==date) :
             total_casa_iel = item.valor + total_casa_iel
         total_servico = item.valor + total_servico
-    #  'mes': data, 'total_servico': total_servico, 'total_backup': total_backup, 'total_adicionais': total_servico + total_backup, 'casa_senai': total_casa_senai, 'casa_sesi': total_casa_sesi, 'casa_fieb': total_casa_fieb, 'casa_iel': total_casa_iel, 'backup_list': backup_list, 'servico_list': servico_list}
+    
     return render(request, 'hosting/servicos.html', {'mes': data, 'total_servico': total_servico, 'total_backup': total_backup, 'total_adicionais': total_servico + total_backup, 'casa_senai': total_casa_senai, 'casa_sesi': total_casa_sesi, 'casa_fieb': total_casa_fieb, 'casa_iel': total_casa_iel, 'backup_list': backup_list, 'servico_list': servico_list})
 
 def redirectSenai(request):
@@ -123,6 +137,27 @@ def financeiroSENAI(request):
 
     return render(request, 'hosting/financeiro_senai.html', {'data': data, 'valor_empresa': list_dic, 'tabela': 'SENAI'})
 
+def historico(request):
+    hosting_list_mes1 = []
+    hosting_list_mes2 = []
+    hosting_list_mes3 = []
+    mes1 = None
+    mes2 = None
+    mes3 = None
+    for item in Hosting.objects.all():
+        if abs(item.data_insert - datetime.date.today().month)<=3 :
+            if abs(item.data_insert - datetime.date.today().month) == 1 :
+                mes1 = item.data_insert.strftime("%B")
+                hosting_list_mes1.append(item)
+            if abs(item.data_insert - datetime.date.today().month) == 2 :
+                mes2 = item.data_insert.strftime("%B")
+                hosting_list_mes2.append(item)
+            if abs(item.data_insert - datetime.date.today().month) == 3 :
+                mes3 = item.data_insert.strftime("%B")
+                hosting_list_mes3.append(item)
+
+    return render(request, 'hosting/financeiro_senai.html', {'mes1': mes1, 'mes2': mes2, 'mes3': mes3, 'hosting1': hosting_list_mes1,'hosting2': hosting_list_mes2,'hosting3': hosting_list_mes3})
+
 class HostingList(ListView):
     model = Hosting
     def get_context_data(self, **kwargs):
@@ -130,10 +165,18 @@ class HostingList(ListView):
         context = super(HostingList, self).get_context_data(**kwargs)
         # Add in a QuerySet of all the 
         hosting_list = []
-
+        date = datetime.date(year = 2000, month= 1, day = 1)
         for item in Hosting.objects.all():
-            if item.hosting_senai:
+            print(item.data_delete)
+            if item.hosting_senai & (item.data_delete==date):
                 hosting_list.append(item)
+
+        #colocar todos os meses no contex
+        #tentar pegar em qual mes foi clicado no ajax
+        #sabendo qual mes foi clicado, reexibir as tabelas para o mes selecionado
+        #colocar os 12 meses
+
+
         context['mes'] = datetime.date.today().strftime("%B")
         context['hosting_list'] = hosting_list
         total= 0
@@ -160,7 +203,7 @@ class HostingList(ListView):
         context['totalAno'] = total*12
         context['total_empresa'] = list_dic
         context['tabela'] = 'SENAI'
-        # context['teste'] = teste
+        # context['teste'] = "teste"
         return context
 
 class HostingCreate(CreateView):
@@ -170,6 +213,7 @@ class HostingCreate(CreateView):
 
     def form_valid(self, form):
         form.instance.data_insert = datetime.date.today()
+        form.instance.data_delete = datetime.date(year = 2000, month= 1, day = 1)
         form.instance.empresa = form.instance.empresa.upper()
         form.instance.tipo_maq = form.instance.tipo_maq.capitalize()
         form.instance.tipo = tipo(form.instance.cpu, form.instance.memoria)
@@ -298,6 +342,22 @@ class HostingUpdate(UpdateView):
 class HostingDelete(DeleteView):
     model = Hosting
     success_url = reverse_lazy('hosting_list')
+    def post(self, request, *args, **kwargs): 
+        if self.request.POST.get("confirm_delete"):
+            # when confirmation page has been displayed and confirm button pressed
+            path = self.request.path
+            id = path.split('/')
+            delete_item = Hosting.objects.get(id = id[2])
+            delete_item.data_delete = datetime.date.today()
+            delete_item.save()
+            print(delete_item.data_delete,end='\n')
+            return HttpResponseRedirect(self.success_url)
+        elif self.request.POST.get("cancel"):
+            # when confirmation page has been displayed and cancel button pressed
+            return HttpResponseRedirect(self.success_url)
+        else:
+            # when data is coming from the form which lists all items
+            return self.get(self, *args, **kwargs)
 
 class Sevicos_adicionaisCreate (CreateView):
     model = Servicos_adicionais

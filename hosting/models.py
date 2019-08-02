@@ -25,8 +25,8 @@ class Hosting(models.Model):
     hosting_senai = models.BooleanField(verbose_name="Hosting SENAI", blank=True, default=False)
     hosting_fieb = models.BooleanField(verbose_name="Hosting FIEB", blank=True, default=False)
     data_insert = models.DateField(default= None, blank=True)
-    data_delet = models.DateField(default=None, blank=True)
-    
+    data_delete = models.DateField(default=None, blank=True)
+
 class Servicos_adicionais(models.Model):
     casa = models.CharField(max_length=50, blank=True)
     descricao = models.CharField(max_length=50, verbose_name="Descrição")
@@ -35,6 +35,8 @@ class Servicos_adicionais(models.Model):
     observacao = models.CharField(max_length=150, blank=True, default='-', verbose_name="Observação")
     responsavel = models.CharField(max_length=150, blank=True, default='-', verbose_name="Responsável")
     valor = models.DecimalField(max_digits=10,decimal_places=2, blank=True, default=0.00)
+    data_insert = models.DateField(default= None, blank=True)
+    data_delete = models.DateField(default=None, blank=True)
 
 class Backup_dados(models.Model):
     casa = models.CharField(max_length=50, blank=True)
@@ -43,3 +45,5 @@ class Backup_dados(models.Model):
     volume = models.DecimalField(max_digits=12,decimal_places=2, blank=True, default=0.00)
     quantidade = models.IntegerField(blank=True, default=0)
     valor = models.DecimalField(max_digits=10,decimal_places=2, blank=True)
+    data_insert = models.DateField(default= None, blank=True)
+    data_delete = models.DateField(default=None, blank=True)

@@ -195,6 +195,7 @@
             <a href="{% url "financeiro_senai" %}">Financeiro</a>
             {% endif %}
             <a href="{% url "tabela_preco" %}">Tabela de Preços</a>
+            <a href="{% url "add_client" %}">Adicionar Cliente</a>
             <div class="dropdown">
                 <button class="dropbtn">Anteriores
                   <i class="fa fa-caret-down"></i>
@@ -214,7 +215,6 @@
     <h1>AMBIENTE FIEB</h1>
     <h2>{{ mes }}</h2>
     <br/>
-    <a class="button" style="margin-left: 1650px;" href="{% url "hosting_create" %}" >Novo Servidor</a>
     <div id="main" style="margin-bottom: 50px;">
         <table  width=1800 class="hosting">
             <tr bgcolor=#2e72af>

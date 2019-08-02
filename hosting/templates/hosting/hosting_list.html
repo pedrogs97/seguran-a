@@ -3,7 +3,6 @@
 
 <head>
     <title >Hosting-SENAI</title>
-
     <style type="text/css">
 
         body {
@@ -181,7 +180,23 @@
         table.hosting tr.even {
             background-color: #fde9d9;
         }
-        </style>
+
+    </style>
+
+    <script>
+        function setGetParameter(){
+            var search_word = $("#search").val();
+            $.ajax({
+                type: "POST",
+                url: {% url 'view_detail' %},
+                data: search_word,
+                success: function(result){
+                alert("Success");
+                }
+            });
+        }
+    </script>
+
 </head>
 <body style="background-color:rgb(187, 184, 184); font-family: 'Courier New', Courier, monospace;">
     
@@ -195,6 +210,7 @@
             <a href="{% url "financeiro_senai" %}">Financeiro</a>
             {% endif %}
             <a href="{% url "tabela_preco" %}">Tabela de Preços</a>
+            <a href="{% url "add_client" %}">Adicionar Cliente</a>
             <div class="dropdown">
                 <button class="dropbtn">Anteriores
                   <i class="fa fa-caret-down"></i>
@@ -214,7 +230,6 @@
     <h1>AMBIENTE SENAI</h1>
     <h2>{{ mes }}</h2>
     <br/>
-    <a class="button" style="margin-left: 1650px;" href="{% url "hosting_create" %}" >Novo Servidor</a>
     <div id="main" style="margin-bottom: 50px;">
         <table  width=1800 class="hosting">
             <tr bgcolor=#2e72af>
@@ -273,7 +288,6 @@
             </footer>
         </table>
     </div>
-    
     <div >
         <table  style="margin-left: 500; margin-top: 30px;" class="hosting">
             <TR bgcolor=#7778f0>

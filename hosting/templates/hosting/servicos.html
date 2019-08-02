@@ -192,6 +192,7 @@
             <a href="{% url "financeiro_senai" %}">Financeiro</a>
         {% endif %}
         <a href="{% url "tabela_preco" %}">Tabela de Preços</a>
+        <a href="{% url "add_client" %}">Adicionar Cliente</a>
         <div class="dropdown">
             <button class="dropbtn">Anteriores
                 <i class="fa fa-caret-down"></i>
@@ -211,7 +212,7 @@
     <h1>SERVIÇOES ADICIONAIS</h1>
     <h2>{{ mes }}</h2>
     <br/>
-    <div style="margin-left: 100; margin-top: -10px;">
+    <div style="margin-left: 300; margin-top: -10px;">
         <table width=700  class="hosting">
             <TR bgcolor=#7778f0>
                 <th colspan="7">SERVIÇÕES ADICIONAIS</th>
@@ -248,7 +249,6 @@
             </footer>
         </table>
         </div>
-        <a class="button" style="margin-left: 1240px;" href="{% url 'servicos_adicionais' %}">Novo Serviço</a>
         <div style="margin-left: 100; margin-top: 50px;">
                 <table  class="hosting">
                     <TR bgcolor=#7778f0>
@@ -284,9 +284,8 @@
                     </footer>
                 </table>
                 </div>
-                <a class="button" href="{% url 'backup_adicionais' %}">Novo Bakcup</a>
                 <div >
-                        <table  style="margin-left: 500;" class="hosting">
+                        <table  style="margin-left: 500; margin-top: 60px;" class="hosting">
                             <TR bgcolor=#7778f0>
                                 <th colspan="2">TOTAL SERVIÇO</th>
                             </TR>

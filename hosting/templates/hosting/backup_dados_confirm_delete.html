@@ -22,10 +22,18 @@
         background-color: rgb(196, 117, 124);
     }
 </style>
+
+<script>
+        function goBack() {
+          window.history.back();
+        }
+        </script>
+
 <body>
     <h1>Hosting Delete</h1>
     <form method="post">{% csrf_token %}
-        Are you sure you want to delete "{{ object }}?
+        Are you sure you want to delete "{{ object.empresa }}" - "{{ object.server }}"?
         <input type="submit" class="button" value="OK" />
+        <button class="button" onclick="goBack()">Cancelar</button>
     </form>
 </body>

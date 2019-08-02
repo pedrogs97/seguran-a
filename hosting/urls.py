@@ -10,6 +10,7 @@ urlpatterns = [
     path('', views.redirectSenai, name = 'redirect'),
     path('delete/<int:pk>', views.HostingDelete.as_view(), name = 'hosting_delete'),
     path('FIEB/', views.hostingFieb, name = 'hosting_fieb'),
+    path('add-client/', views.add_client, name = 'add_client'),
     path('financeiro-SENAI/', views.financeiroSENAI, name = 'financeiro_senai'),
     path('serv-add/delete/<int:pk>', views.Servicos_adicionaisDelete.as_view(), name='servicos_delete'),
     path('serv-add/edit/<int:pk>', views.Servicos_adicionaisUpdate.as_view(), name='servicos_edit'),
