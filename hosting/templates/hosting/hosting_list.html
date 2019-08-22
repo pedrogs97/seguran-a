@@ -185,10 +185,10 @@
 
     <script>
         function setGetParameter(){
-            var search_word = $("#search").val();
+            var search_word = $("#teste").val();
             $.ajax({
                 type: "POST",
-                url: {% url 'view_detail' %},
+                url: {% url 'hosting_list' %},
                 data: search_word,
                 success: function(result){
                 alert("Success");
@@ -206,24 +206,23 @@
             <a class="active" href="{% url "hosting_list" %}">SENAI</a>
             <a href="{% url "hosting_fieb" %}">FIEB</a>
             <a href="{% url "servicos" %}">Serviços adicionais</a>
-            {% if teste == 'SENAI' %}
-            <a href="{% url "financeiro_senai" %}">Financeiro</a>
-            {% endif %}
             <a href="{% url "tabela_preco" %}">Tabela de Preços</a>
             <a href="{% url "add_client" %}">Adicionar Cliente</a>
-            <div class="dropdown">
+            <a href="{% url "financeiro_senai" %}">Financeiro</a>
+            <!--<div class="dropdown">
                 <button class="dropbtn">Anteriores
                   <i class="fa fa-caret-down"></i>
                 </button>
                 <div class="dropdown-content">
-                  <a href="#">Janeiro</a>
-                  <a href="#">Fevereiro</a>
-                  <a href="#">Março</a>
-                  <a href="#">Abril</a>
-                  <a href="#">Maio</a>
-                  <a href="#">Junho</a>
+                    <input type="submit" class="button" onclick="setGetParameter()" id="teste" value="teste" name="teste" />
+                    <a href="#">Janeiro</a>
+                    <a href="#">Fevereiro</a>
+                    <a href="#">Março</a>
+                    <a href="#">Abril</a>
+                    <a href="#">Maio</a>
+                    <a href="#">Junho</a>
                 </div>
-            </div>
+            </div>-->
             <a id="logout" href="{% url 'logout' %}">Logout</a>
             <div id="user">Bem vindo, {{ user.username }}</div>
         </div> 
@@ -252,7 +251,7 @@
                     <th width=130>Valor Disco Adicional (R$)</th>
                     <th width=130>Valor Total (R$)</th>
             </tr>
-            {% for hosting in object_list %}
+            {% for hosting in hosting_list %}
                 <tr id="row">
                         {% if hosting.hosting_senai %}
                         <td>{{ hosting.empresa }}</td>

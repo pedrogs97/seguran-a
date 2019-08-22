@@ -191,11 +191,10 @@
             <a href="{% url "hosting_list" %}">SENAI</a>
             <a href="{% url "hosting_fieb" %}">FIEB</a>
             <a href="{% url "servicos" %}">Serviços adicionais</a>
-            {% if tabela == 'SENAI' %}
-            <a class="active" href="{% url "hosting_list" %}">Financeiro</a>
-            {% endif %}
             <a href="{% url "tabela_preco" %}">Tabela de Preços</a>
-            <div class="dropdown">
+            <a href="{% url "add_client" %}">Adicionar Cliente</a>
+            <a class="active" href="{% url "financeiro_senai" %}">Financeiro</a>
+            <!-- <div class="dropdown">
                 <button class="dropbtn">Anteriores
                   <i class="fa fa-caret-down"></i>
                 </button>
@@ -207,104 +206,322 @@
                   <a href="#">Maio</a>
                   <a href="#">Junho</a>
                 </div>
-            </div>
+            </div> -->
             <a id="logout" href="{% url 'logout' %}">Logout</a>
             <div id="user">Bem vindo, {{ user.username }}</div>
         </div> 
-    <h1>FINANCEIRO SENAI</h1>
+    <h1>FINANCEIRO</h1>
     <h2>{{ data }}</h2>
     <br/>
-    <a class="button" style="margin-left: 1650px;" href="{% url "hosting_create" %}" >Novo Servidor</a>
+    <form method="post">{% csrf_token %}
+        <label>ANO: </label>
+        <select name="ano">
+            {% for ano in lista_anos %}
+            <option value="{{ ano }}" selected="selected">{{ ano }}</option>
+            {% endfor %}
+        </select> 
+        <label>MÊS INICIAL: </label>
+        <select name="mes" >
+                <option selected= "selected" value="1">JANEIRO</option>
+                <option value="2">FEVEREIRO</option>
+                <option value="3">MARÇO</option>
+                <option value="4">ABRIL</option>
+                <option value="5">MAIO</option>
+                <option value="6">JUNHO</option>
+                <option value="7">JULHO</option>
+                <option value="8">AGOSTO</option>
+                <option value="9">SETEMBRO</option>
+                <option value="10">OUTUBRO</option>
+                <option value="11">NOVEMBRO</option>
+                <option value="12">DEZEMBRO</option>
+        </select>
+        <label>MÊS FINAL: </label>
+        <select name="mes" >
+                {% if mes_atual == 'January' %}
+            <option selected= "selected" value="1">JANEIRO</option>
+            <option value="2">FEVEREIRO</option>
+            <option value="3">MARÇO</option>
+            <option value="4">ABRIL</option>
+            <option value="5">MAIO</option>
+            <option value="6">JUNHO</option>
+            <option value="7">JULHO</option>
+            <option value="8">AGOSTO</option>
+            <option value="9">SETEMBRO</option>
+            <option value="10">OUTUBRO</option>
+            <option value="11">NOVEMBRO</option>
+            <option value="12">DEZEMBRO</option>
+            {% elif mes_atual == 'February' %}
+            <option value="1">JANEIRO</option>
+            <option selected= "selected" value="2">FEVEREIRO</option>
+            <option value="3">MARÇO</option>
+            <option value="4">ABRIL</option>
+            <option value="5">MAIO</option>
+            <option value="6">JUNHO</option>
+            <option value="7">JULHO</option>
+            <option value="8">AGOSTO</option>
+            <option value="9">SETEMBRO</option>
+            <option value="10">OUTUBRO</option>
+            <option value="11">NOVEMBRO</option>
+            <option value="12">DEZEMBRO</option>
+            {% elif mes_atual == 'March' %}
+            <option value="1">JANEIRO</option>
+            <option value="2">FEVEREIRO</option>
+            <option selected= "selected" value="3">MARÇO</option>
+            <option value="4">ABRIL</option>
+            <option value="5">MAIO</option>
+            <option value="6">JUNHO</option>
+            <option value="7">JULHO</option>
+            <option value="8">AGOSTO</option>
+            <option value="9">SETEMBRO</option>
+            <option value="10">OUTUBRO</option>
+            <option value="11">NOVEMBRO</option>
+            <option value="12">DEZEMBRO</option>
+            {% elif mes_atual == 'April' %}
+            <option value="1">JANEIRO</option>
+            <option value="2">FEVEREIRO</option>
+            <option value="3">MARÇO</option>
+            <option selected= "selected" value="4">ABRIL</option>
+            <option value="5">MAIO</option>
+            <option value="6">JUNHO</option>
+            <option value="7">JULHO</option>
+            <option value="8">AGOSTO</option>
+            <option value="9">SETEMBRO</option>
+            <option value="10">OUTUBRO</option>
+            <option value="11">NOVEMBRO</option>
+            <option value="12">DEZEMBRO</option>
+            {% elif mes_atual == 'May' %}
+            <option value="1">JANEIRO</option>
+            <option value="2">FEVEREIRO</option>
+            <option value="3">MARÇO</option>
+            <option value="4">ABRIL</option>
+            <option selected= "selected" value="5">MAIO</option>
+            <option value="6">JUNHO</option>
+            <option value="7">JULHO</option>
+            <option value="8">AGOSTO</option>
+            <option value="9">SETEMBRO</option>
+            <option value="10">OUTUBRO</option>
+            <option value="11">NOVEMBRO</option>
+            <option value="12">DEZEMBRO</option>
+            {% elif mes_atual == 'June' %}
+            <option value="1">JANEIRO</option>
+            <option value="2">FEVEREIRO</option>
+            <option value="3">MARÇO</option>
+            <option value="4">ABRIL</option>
+            <option value="5">MAIO</option>
+            <option selected= "selected" value="6">JUNHO</option>
+            <option value="7">JULHO</option>
+            <option value="8">AGOSTO</option>
+            <option value="9">SETEMBRO</option>
+            <option value="10">OUTUBRO</option>
+            <option value="11">NOVEMBRO</option>
+            <option value="12">DEZEMBRO</option>
+            {% elif mes_atual == 'July' %}
+            <option value="1">JANEIRO</option>
+            <option value="2">FEVEREIRO</option>
+            <option value="3">MARÇO</option>
+            <option value="4">ABRIL</option>
+            <option value="5">MAIO</option>
+            <option value="6">JUNHO</option>
+            <option selected= "selected" value="7">JULHO</option>
+            <option value="8">AGOSTO</option>
+            <option value="9">SETEMBRO</option>
+            <option value="10">OUTUBRO</option>
+            <option value="11">NOVEMBRO</option>
+            <option value="12">DEZEMBRO</option>
+            {% elif mes_atual == 'August' %}
+            <option value="1">JANEIRO</option>
+            <option value="2">FEVEREIRO</option>
+            <option value="3">MARÇO</option>
+            <option value="4">ABRIL</option>
+            <option value="5">MAIO</option>
+            <option value="6">JUNHO</option>
+            <option value="7">JULHO</option>
+            <option selected= "selected" value="8">AGOSTO</option>
+            <option value="9">SETEMBRO</option>
+            <option value="10">OUTUBRO</option>
+            <option value="11">NOVEMBRO</option>
+            <option value="12">DEZEMBRO</option>
+            {% elif mes_atual == 'September' %}
+            <option value="1">JANEIRO</option>
+            <option value="2">FEVEREIRO</option>
+            <option value="3">MARÇO</option>
+            <option value="4">ABRIL</option>
+            <option value="5">MAIO</option>
+            <option value="6">JUNHO</option>
+            <option value="7">JULHO</option>
+            <option value="8">AGOSTO</option>
+            <option selected= "selected" value="9">SETEMBRO</option>
+            <option value="10">OUTUBRO</option>
+            <option value="11">NOVEMBRO</option>
+            <option value="12">DEZEMBRO</option>
+            {% elif mes_atual == 'October' %}
+            <option value="1">JANEIRO</option>
+            <option value="2">FEVEREIRO</option>
+            <option value="3">MARÇO</option>
+            <option value="4">ABRIL</option>
+            <option value="5">MAIO</option>
+            <option value="6">JUNHO</option>
+            <option value="7">JULHO</option>
+            <option value="8">AGOSTO</option>
+            <option value="9">SETEMBRO</option>
+            <option selected= "selected" value="10">OUTUBRO</option>
+            <option value="11">NOVEMBRO</option>
+            <option value="12">DEZEMBRO</option>
+            {% elif mes_atual == 'November' %}
+            <option value="1">JANEIRO</option>
+            <option value="2">FEVEREIRO</option>
+            <option value="3">MARÇO</option>
+            <option value="4">ABRIL</option>
+            <option value="5">MAIO</option>
+            <option value="6">JUNHO</option>
+            <option value="7">JULHO</option>
+            <option value="8">AGOSTO</option>
+            <option value="9">SETEMBRO</option>
+            <option value="10">OUTUBRO</option>
+            <option selected= "selected" value="11">NOVEMBRO</option>
+            <option value="12">DEZEMBRO</option>
+            {% elif mes_atual == 'December' %}
+            <option value="1">JANEIRO</option>
+            <option value="2">FEVEREIRO</option>
+            <option value="3">MARÇO</option>
+            <option value="4">ABRIL</option>
+            <option value="5">MAIO</option>
+            <option value="6">JUNHO</option>
+            <option value="7">JULHO</option>
+            <option value="8">AGOSTO</option>
+            <option value="9">SETEMBRO</option>
+            <option value="10">OUTUBRO</option>
+            <option value="11">NOVEMBRO</option>
+            <option selected= "selected" value="12">DEZEMBRO</option>
+            {% endif %}
+        </select>
+        <label>Ambiente: </label>
+        <select name="ambiente" >
+            <option value="senai">SENAI</option>
+            <option value="fieb">FIEB</option>
+        </select>
+        <input style="margin-left: 50;" type="submit" class="button" value="OK" />
+    </form>
     <div id="main" style="margin-bottom: 50px;">
         <table  width=1800 class="hosting">
             <tr bgcolor=#2e72af>
-                    <th width=100>Empresa</th>
-                    <th width=180>Server</th>
-                    <th width=120>Descrição</th>
-                    <th width=75>CPU</th>
-                    <th width=90>Memória</th>
-                    <th width=75>Disco</th>
-                    <th width=130>Tipo de Máquina</th>
-                    <th width=60>Tipo</th>
-                    <th width=80>Perfil</th>
-                    <th width=170>Recurso</th>
-                    <th width=230>Valor de Tabela (R$)</th>
-                    <th width=100>CPU Adicional</th>
-                    <th width=170>Valor CPU Adional (R$)</th>
-                    <th width=110>Memória Adicional</th>
-                    <th width=190>Valor Memória Adicional (R$)</th>
-                    <th width=110>Disco Adicional</th>
-                    <th width=130>Valor Disco Adicional (R$)</th>
-                    <th width=130>Valor Total (R$)</th>
+                    <th width=100>Casa</th>
+                    <th width=100>JANEIRO</th>
+                    <th width=120>FEVEREIRO</th>
+                    <th width=75>MARÇO</th>
+                    <th width=90>ABRIL</th>
+                    <th width=75>MAIO</th>
+                    <th width=100>JUNHO</th>
+                    <th width=100>JULHO</th>
+                    <th width=100>AGOSTO</th>
+                    <th width=110>SETEMBRO</th>
+                    <th width=100>OUTUBRO</th>
+                    <th width=100>NOVEMBRO</th>
+                    <th width=100>DEZEMBRO</th>
+                    <th width=140>Média Mensal (R$)</th>
+                    <th width=190>Previsão Anual (R$)</th>
+                    <th width=110>Total (R$)</th>
             </tr>
-            {% for item in valor_empresa %}
+            <tr id="row">
+                <td align="center">SENAI</td>
+                <td align="right">R$ {{ valor_mes.jan }}</td>
+                <td align="right">R$ {{ valor_mes.fev }}</td>
+                <td align="right">R$ {{ valor_mes.mar }}</td>
+                <td align="right">R$ {{ valor_mes.abr }}</td>
+                <td align="right">R$ {{ valor_mes.maio }}</td>
+                <td align="right">R$ {{ valor_mes.jun }}</td>
+                <td align="right">R$ {{ valor_mes.jul }}</td>
+                <td align="right">R$ {{ valor_mes.ago }}</td>
+                <td align="right">R$ {{ valor_mes.set }}</td>
+                <td align="right">R$ {{ valor_mes.out }}</td>
+                <td align="right">R$ {{ valor_mes.nov }}</td>
+                <td align="right">R$ {{ valor_mes.dez }}</td>
+                <td align="right">R$ {{ media }}</td>
+                <td align="right">R$ {{ previsao }}</td>
+                <td align="right">R$ {{ total }}</td>
+            </tr>
+            <tr id="row">
+                    <td align="center">SENAI SERVIÇOES</td>
+                    <td align="right">R$ {{ valor_mes_servicos.jan }}</td>
+                    <td align="right">R$ {{ valor_mes_servicos.fev }}</td>
+                    <td align="right">R$ {{ valor_mes_servicos.mar }}</td>
+                    <td align="right">R$ {{ valor_mes_servicos.abr }}</td>
+                    <td align="right">R$ {{ valor_mes_servicos.maio }}</td>
+                    <td align="right">R$ {{ valor_mes_servicos.jun }}</td>
+                    <td align="right">R$ {{ valor_mes_servicos.jul }}</td>
+                    <td align="right">R$ {{ valor_mes_servicos.ago }}</td>
+                    <td align="right">R$ {{ valor_mes_servicos.set }}</td>
+                    <td align="right">R$ {{ valor_mes_servicos.out }}</td>
+                    <td align="right">R$ {{ valor_mes_servicos.nov }}</td>
+                    <td align="right">R$ {{ valor_mes_servicos.dez }}</td>
+                    <td align="right">R$ {{ media_servico }}</td>
+                    <td align="right">R$ {{ previsao_servico }}</td>
+                    <td align="right">R$ {{ total_servico }}</td>
+                </tr>
                 <tr id="row">
-                        {% if hosting.hosting_senai %}
-                        <td>{{ hosting.empresa }}</td>
-                        <td>{{ hosting.server }}</td>
-                        <td align="center">{{ hosting.descricao }}</td>
-                        <td align="center">{{ hosting.cpu }}</td>
-                        <td align="center">{{ hosting.memoria }}</td>
-                        <td align="center">{{ hosting.disco }}</td>
-                        <td align="center">{{ hosting.tipo_maq }}</td>
-                        <td align="center">{{ hosting.tipo }}</td>
-                        <td align="center">{{ hosting.perfil }}</td>
-                        <td align="center">{{ hosting.recurso }}</td>
-                        <td align="right">{{ hosting.valor_tabela }}</td>
-                        <td align="center">{{ hosting.proc_adicional }}</td>
-                        <td align="right">{{ hosting.valor_proc_adicional }}</td>
-                        <td align="center">{{ hosting.memoria_adicional }}</td>
-                        <td align="right">{{ hosting.valor_memoria_adicional }}</td>
-                        <td align="center">{{ hosting.disco_adicional }}</td>
-                        <td align="right">{{ hosting.valor_disco_adicional }}</td>
-                        <td align="right">{{ hosting.valor_total }}</td>
-                        <td align="center"><a class="remove" href="{% url "hosting_delete" hosting.id %}">x</a></td>
-                        <td align="center"><a class="remove" href="{% url "hosting_edit" hosting.id %}">Editar</a></td>
-                        {% endif %}
+                    <td align="center">NEAD (ÁREA DE NEGÓCIOS SENAI)</td>
+                    <td align="right">R$ {{ valor_mes_nead.jan }}</td>
+                    <td align="right">R$ {{ valor_mes_nead.fev }}</td>
+                    <td align="right">R$ {{ valor_mes_nead.mar }}</td>
+                    <td align="right">R$ {{ valor_mes_nead.abr }}</td>
+                    <td align="right">R$ {{ valor_mes_nead.maio }}</td>
+                    <td align="right">R$ {{ valor_mes_nead.jun }}</td>
+                    <td align="right">R$ {{ valor_mes_nead.jul }}</td>
+                    <td align="right">R$ {{ valor_mes_nead.ago }}</td>
+                    <td align="right">R$ {{ valor_mes_nead.set }}</td>
+                    <td align="right">R$ {{ valor_mes_nead.out }}</td>
+                    <td align="right">R$ {{ valor_mes_nead.nov }}</td>
+                    <td align="right">R$ {{ valor_mes_nead.dez }}</td>
+                    <td align="right">R$ {{ total_nead }}</td>
                 </tr>
-            {% empty %}
-                <li>Nothing yet.</li>
-            {% endfor %}
-            <tfooter>
-                <tr>
-                    <td style="font-weight: bold;">Total Servidores</td>
-                    <td align="center" style="font-weight: bold;">R$ {{ total }}</td>
-                </tr>
-            </footer>
+                <tfooter>
+                        <tr>
+                            <td style="background-color: black; height: 10;"  colspan="14"></td>
+                        </tr><tr id="row">
+                                <td style="font-weight: bolder" align="center">TOTAL MÊS</td>
+                                <td align="right">R$ {{ valor_mes_total.jan }}</td>
+                                <td align="right">R$ {{ valor_mes_total.fev }}</td>
+                                <td align="right">R$ {{ valor_mes_total.mar }}</td>
+                                <td align="right">R$ {{ valor_mes_total.abr }}</td>
+                                <td align="right">R$ {{ valor_mes_total.maio }}</td>
+                                <td align="right">R$ {{ valor_mes_total.jun }}</td>
+                                <td align="right">R$ {{ valor_mes_total.jul }}</td>
+                                <td align="right">R$ {{ valor_mes_total.ago }}</td>
+                                <td align="right">R$ {{ valor_mes_total.set }}</td>
+                                <td align="right">R$ {{ valor_mes_total.out }}</td>
+                                <td align="right">R$ {{ valor_mes_total.nov }}</td>
+                                <td align="right">R$ {{ valor_mes_total.dez }}</td>
+                                <td align="right">TOTAL<br/> R$ {{ total_geral }}</td>
+                            </tr>
+                    </footer>
+                
         </table>
     </div>
     
-    <div >
-        <table  style="margin-left: 500; margin-top: 30px;" class="hosting">
-            <TR bgcolor=#7778f0>
-                <th colspan="2">PRECIFICAÇÃO DO AMBIENTE SENAI</th>
-            </TR>
+
+
+    <div style="margin-left: 300;" id="main" style="margin-bottom: 50px;">
+        <table class="hosting">
             <tr bgcolor=#2e72af>
-                    <th width=100>CLIENTE</th>
-                    <th width=180>TOTAL</th>
+                    <th width=300>UNIDADE</th>
+                    <th width=100>QUANTIDADE DE USUÁRIOS</th>
+                    <th align="center" width=120>%</th>
+                    <th width=75>TOTAL A PAGAR (R$)</th>
             </tr>
-            {% for item in total_empresa %}
-            <tr id="row" ></tr>
-                <td > {{ item.empresa }}</td>
-                <td align="right">R$ {{ item.valor }}</td>
+            {% for unidade in unidades %}
+            <tr id="row">
+                <td align="center">{{ unidade.unidade }}</td>
+                <td align="center">{{ unidade.qtd }}</td>
+                <td align="center">{{ unidade.porcentagem }}</td>
+                <td width=150 align="right">R$ {{ unidade.valor }}</td>
             </tr>
-            {% empty %}
-                <li>Nothing yet.</li>
             {% endfor %}
-            <tfooter>
-                <tr>
-                    <td style="font-weight: bold;">Total</td>
-                    <td align="center" style="font-weight: bold;">R$ {{ total }}</td>
-                </tr>
-                <tr>
-                    <td style="background-color: black;" colspan="2"></td>
-                    
-                </tr>
-                <tr>
-                    <td style="font-weight: bold;">Total por ANO</td>
-                    <td align="center" style="font-weight: bold;">R$ {{ totalAno }}</td>
-                </tr> 
-            </footer>
+            <tr id="row">
+                <td style="font-weight: border;" align="center">TOTAL</td>
+                <td align="center">{{ total_user }}</td>
+                <td align="center">100%</td>
+                <td align="right">R$ {{ total_unidades }}</td>
+            </tr>
         </table>
     </div>
     {% else %}

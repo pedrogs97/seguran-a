@@ -22,9 +22,42 @@
     }
 </style>
 <body>
-    <h1>Hosting Edit</h1>
+    <h1>{{ titulo }}</h1>
     <form method="post">{% csrf_token %}
+        <p>
+                <label>Casa: </label>
+                <select name="casa" >
+                    {% if home == 'senai' %}
+                    <option value="senai" selected="selected">SENAI</option>
+                    <option value="fieb">FIEB</option>
+                    <option value="fieb">IEL</option>
+                    <option value="fieb">SESI</option>
+                    {% else %}
+                        {% if home == 'fieb' %}
+                        <option value="senai">SENAI</option>
+                        <option value="fieb" selected="selected">FIEB</option>
+                        <option value="fieb">IEL</option>
+                        <option value="fieb">SESI</option>
+                        {% else %}
+                            {% if home == 'iel' %}
+                            <option value="senai">SENAI</option>
+                            <option value="fieb">FIEB</option>
+                            <option value="fieb" selected="selected">IEL</option>
+                            <option value="fieb">SESI</option>
+                            {% else %}
+                                {% if home == 'sesi' %}
+                                <option value="senai">SENAI</option>
+                                <option value="fieb">FIEB</option>
+                                <option value="fieb">IEL</option>
+                                <option value="fieb" selected="selected">SESI</option>
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
+                </select> 
+            </p>
         {{ form.as_p }}
         <input type="submit" class="button" value="OK" />
+        <a class="button" href="{% url "add_client" %}">Cancelar</a>
     </form>
 </body>

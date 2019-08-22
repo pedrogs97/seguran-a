@@ -191,12 +191,10 @@
             <a href="{% url "hosting_list" %}">SENAI</a>
             <a class="active" href="{% url "hosting_fieb" %}">FIEB</a>
             <a href="{% url "servicos" %}">Serviços adicionais</a>
-            {% if teste == 'SENAI' %}
-            <a href="{% url "financeiro_senai" %}">Financeiro</a>
-            {% endif %}
             <a href="{% url "tabela_preco" %}">Tabela de Preços</a>
             <a href="{% url "add_client" %}">Adicionar Cliente</a>
-            <div class="dropdown">
+            <a href="{% url "financeiro_senai" %}">Financeiro</a>
+            <!-- <div class="dropdown">
                 <button class="dropbtn">Anteriores
                   <i class="fa fa-caret-down"></i>
                 </button>
@@ -208,7 +206,7 @@
                   <a href="#">Maio</a>
                   <a href="#">Junho</a>
                 </div>
-            </div>
+            </div> -->
             <a id="logout" href="{% url 'logout' %}">Logout</a>
             <div id="user">Bem vindo, {{ user.username }}</div>
         </div> 

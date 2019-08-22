@@ -20,11 +20,125 @@
     {
         background-color: rgb(196, 117, 124);
     }
+
+    .dropdown {
+            float: left;
+            overflow: hidden;
+        }
+
+        .dropdown .dropbtn {
+            font-size: 16px;
+            border: none;
+            outline: none;
+            color: white;
+            padding: 14px 16px;
+            background-color: inherit;
+            font-family: inherit; /* Important for vertical align on mobile phones */
+            margin: 0; /* Important for vertical align on mobile phones */
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+
+        .dropdown-content a {
+            float: none;
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            text-align: left;
+        }
+
+        /* Add a grey background color to dropdown links on hover */
+        .dropdown-content a:hover {
+            background-color: #ddd;
+        }
+
+        /* Show the dropdown menu on hover */
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
 </style>
 <body>
-    <h1>Hosting Edit</h1>
+    <h1>{{ titulo }}</h1>
     <form method="post">{% csrf_token %}
-        {{ form.as_p }}
+        {% if titulo == 'Edit' %}
+            <p>
+                <label>Perfil: </label>
+                <select name="perfilTeste">
+                    {% if perfil == 'GOLD' %}
+                    <option value="GOLD" selected="selected">GOLD</option>
+                    <option value="PLATINUM">PLATINUM</option>
+                    {% else %}
+                    <option value="GOLD">GOLD</option>
+                    <option value="PLATINUM" selected="selected">PLATINUM</option>
+                    {% endif %}
+                </select> 
+            </p>
+            <p>
+                <label>Ambiente: </label>
+                <select name="ambiente" >
+                    {% if ambiente == 'senai' %}
+                    <option value="senai" selected="selected">SENAI</option>
+                    <option value="fieb">FIEB</option>
+                    {% else %}
+                    <option value="senai">SENAI</option>
+                    <option value="fieb" selected="selected">FIEB</option>
+                    {% endif %}
+                </select> 
+            </p>
+            <p>
+                {{ maq }}
+                <label>Tipo de Máquina: </label>
+                <select name="maquina" >
+                    {% if maq == 'Fisica' %}
+                    <option value="virtual">Virtual</option>
+                    <option value="fisico" selected="selected">Física</option>
+                    {% else %}
+                    <option value="virtual" selected="selected">Virtual</option>
+                    <option value="fisico">Física</option>
+                    {% endif %}
+                </select> 
+            </p>
+            {{ form.as_p }}
+        {% else %}
+            <p>
+                <label for="id_perfil">Perfil: </label>
+                <select id="id_perfil" name="perfilTeste">
+                    <!-- <option value="" >Escolha um perfil</option> -->
+                    <option value="GOLD">GOLD</option>
+                    <option value="PLATINUM">PLATINUM</option>
+                </select> 
+            </p>
+            <p>
+                <label>Ambiente: </label>
+                <select name="ambiente" >
+                    <option value="senai">SENAI</option>
+                    <option value="fieb">FIEB</option>
+                </select> 
+            </p>
+            <p>
+                <label>Tipo de Máquina: </label>
+                <select name="maquina" >
+                    {% if maquina == 'Virtual' %}
+                    <option value="virtual" selected="selected">Virtual</option>
+                    <option value="fisico">Física</option>
+                    {% else %}
+                    <option value="virtual">Virtual</option>
+                    <option value="fisico" selected="selected">Física</option>
+                    {% endif %}
+                </select> 
+            </p>
+            {{ form.as_p }}
+        {% endif %}
         <input type="submit" class="button" value="OK" />
+        <a class="button" href="{% url "add_client" %}">Cancelar</a>
     </form>
+    
 </body>
