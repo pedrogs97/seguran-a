@@ -119,176 +119,181 @@ def financeiroSENAI(request):
     total_user = 0
     uni = []
 
-    for item in Unidades.objects.all() :
-        total_user += item.qtd_user
-        
-    for item in Backup_dados.objects.filter(casa='SENAI'):
-        for ano in anos :
-            if(item.data_insert is None):
-                    continue
-            if ano == item.data_insert.year and item.data_delete == datetime.date(year = 2000, month= 1, day = 1) :
-                if item.data_insert.month == 1 and 1 <= datetime.date.today().month:
-                    valor_mes_servicos['jan'] += item.valor
-                if item.data_insert.month <= 2 and 2 <= datetime.date.today().month:
-                    valor_mes_servicos['fev'] += item.valor
-                if item.data_insert.month <= 3 and 3 <= datetime.date.today().month:
-                    valor_mes_servicos['mar'] += item.valor
-                if item.data_insert.month <= 4 and 4 <= datetime.date.today().month:
-                    valor_mes_servicos['abr'] += item.valor
-                if item.data_insert.month <= 5 and 5 <= datetime.date.today().month:
-                    valor_mes_servicos['maio'] += item.valor
-                if item.data_insert.month <= 6 and 6 <= datetime.date.today().month:
-                    valor_mes_servicos['jun'] += item.valor
-                if item.data_insert.month <= 7 and 7 <= datetime.date.today().month:
-                    valor_mes_servicos['jul'] += item.valor
-                if item.data_insert.month <= 8 and 8 <= datetime.date.today().month:
-                    valor_mes_servicos['ago'] += item.valor
-                if item.data_insert.month <= 9 and 9 <= datetime.date.today().month:
-                    valor_mes_servicos['set'] += item.valor
-                if item.data_insert.month <= 10 and 10 <= datetime.date.today().month:
-                    valor_mes_servicos['out'] += item.valor
-                if item.data_insert.month <= 11 and 11 <= datetime.date.today().month:
-                    valor_mes_servicos['nov'] += item.valor
-                if item.data_insert.month <= 12 and 12 <= datetime.date.today().month:
-                    valor_mes_servicos['dez'] += item.valor
+    print(request.POST)
 
-    for item in Servicos_adicionais.objects.filter(casa='SENAI'):
-        for ano in anos :
-            if(item.data_insert is None):
-                    continue
-            if ano == item.data_insert.year and item.data_delete == datetime.date(year = 2000, month= 1, day = 1) :
-                if item.data_insert.month == 1 and 1 <= datetime.date.today().month:
-                    valor_mes_servicos['jan'] += item.valor
-                if item.data_insert.month <= 2 and 2 <= datetime.date.today().month:
-                    valor_mes_servicos['fev'] += item.valor
-                if item.data_insert.month <= 3 and 3 <= datetime.date.today().month:
-                    valor_mes_servicos['mar'] += item.valor
-                if item.data_insert.month <= 4 and 4 <= datetime.date.today().month:
-                    valor_mes_servicos['abr'] += item.valor
-                if item.data_insert.month <= 5 and 5 <= datetime.date.today().month:
-                    valor_mes_servicos['maio'] += item.valor
-                if item.data_insert.month <= 6 and 6 <= datetime.date.today().month:
-                    valor_mes_servicos['jun'] += item.valor
-                if item.data_insert.month <= 7 and 7 <= datetime.date.today().month:
-                    valor_mes_servicos['jul'] += item.valor
-                if item.data_insert.month <= 8 and 8 <= datetime.date.today().month:
-                    valor_mes_servicos['ago'] += item.valor
-                if item.data_insert.month <= 9 and 9 <= datetime.date.today().month:
-                    valor_mes_servicos['set'] += item.valor
-                if item.data_insert.month <= 10 and 10 <= datetime.date.today().month:
-                    valor_mes_servicos['out'] += item.valor
-                if item.data_insert.month <= 11 and 11 <= datetime.date.today().month:
-                    valor_mes_servicos['nov'] += item.valor
-                if item.data_insert.month <= 12 and 12 <= datetime.date.today().month:
-                    valor_mes_servicos['dez'] += item.valor
+    if request.POST  :
+        for item in Unidades.objects.all() :
+            total_user += item.qtd_user
+            
+        for item in Backup_dados.objects.filter(casa='SENAI'):
+            for ano in anos :
+                if(item.data_insert is None):
+                        continue
+                if ano == item.data_insert.year and item.data_delete == datetime.date(year = 2000, month= 1, day = 1) :
+                    if item.data_insert.month == 1 and 1 <= datetime.date.today().month:
+                        valor_mes_servicos['jan'] += item.valor
+                    if item.data_insert.month <= 2 and 2 <= datetime.date.today().month:
+                        valor_mes_servicos['fev'] += item.valor
+                    if item.data_insert.month <= 3 and 3 <= datetime.date.today().month:
+                        valor_mes_servicos['mar'] += item.valor
+                    if item.data_insert.month <= 4 and 4 <= datetime.date.today().month:
+                        valor_mes_servicos['abr'] += item.valor
+                    if item.data_insert.month <= 5 and 5 <= datetime.date.today().month:
+                        valor_mes_servicos['maio'] += item.valor
+                    if item.data_insert.month <= 6 and 6 <= datetime.date.today().month:
+                        valor_mes_servicos['jun'] += item.valor
+                    if item.data_insert.month <= 7 and 7 <= datetime.date.today().month:
+                        valor_mes_servicos['jul'] += item.valor
+                    if item.data_insert.month <= 8 and 8 <= datetime.date.today().month:
+                        valor_mes_servicos['ago'] += item.valor
+                    if item.data_insert.month <= 9 and 9 <= datetime.date.today().month:
+                        valor_mes_servicos['set'] += item.valor
+                    if item.data_insert.month <= 10 and 10 <= datetime.date.today().month:
+                        valor_mes_servicos['out'] += item.valor
+                    if item.data_insert.month <= 11 and 11 <= datetime.date.today().month:
+                        valor_mes_servicos['nov'] += item.valor
+                    if item.data_insert.month <= 12 and 12 <= datetime.date.today().month:
+                        valor_mes_servicos['dez'] += item.valor
+
+        for item in Servicos_adicionais.objects.filter(casa='SENAI'):
+            for ano in anos :
+                if(item.data_insert is None):
+                        continue
+                if ano == item.data_insert.year and item.data_delete == datetime.date(year = 2000, month= 1, day = 1) :
+                    if item.data_insert.month == 1 and 1 <= datetime.date.today().month:
+                        valor_mes_servicos['jan'] += item.valor
+                    if item.data_insert.month <= 2 and 2 <= datetime.date.today().month:
+                        valor_mes_servicos['fev'] += item.valor
+                    if item.data_insert.month <= 3 and 3 <= datetime.date.today().month:
+                        valor_mes_servicos['mar'] += item.valor
+                    if item.data_insert.month <= 4 and 4 <= datetime.date.today().month:
+                        valor_mes_servicos['abr'] += item.valor
+                    if item.data_insert.month <= 5 and 5 <= datetime.date.today().month:
+                        valor_mes_servicos['maio'] += item.valor
+                    if item.data_insert.month <= 6 and 6 <= datetime.date.today().month:
+                        valor_mes_servicos['jun'] += item.valor
+                    if item.data_insert.month <= 7 and 7 <= datetime.date.today().month:
+                        valor_mes_servicos['jul'] += item.valor
+                    if item.data_insert.month <= 8 and 8 <= datetime.date.today().month:
+                        valor_mes_servicos['ago'] += item.valor
+                    if item.data_insert.month <= 9 and 9 <= datetime.date.today().month:
+                        valor_mes_servicos['set'] += item.valor
+                    if item.data_insert.month <= 10 and 10 <= datetime.date.today().month:
+                        valor_mes_servicos['out'] += item.valor
+                    if item.data_insert.month <= 11 and 11 <= datetime.date.today().month:
+                        valor_mes_servicos['nov'] += item.valor
+                    if item.data_insert.month <= 12 and 12 <= datetime.date.today().month:
+                        valor_mes_servicos['dez'] += item.valor
 
 
-    for item in Hosting.objects.filter(hosting_senai='True'):
-        for ano in anos :
-            if(item.data_insert is None):
-                    continue
-            if ano == item.data_insert.year and item.data_delete == datetime.date(year = 2000, month= 1, day = 1) :
-                if item.data_insert.month == 1 and 1 == datetime.date.today().month:
-                    if item.empresa == 'NEAD':
-                        valor_mes_nead['jan'] += item.valor_total
-                    valor_mes['jan'] += item.valor_total
-                if item.data_insert.month <= 2 and 2 <= datetime.date.today().month:
-                    if item.empresa == 'NEAD':
-                        valor_mes_nead['fev'] += item.valor_total
-                    valor_mes['fev'] += item.valor_total
-                if item.data_insert.month <= 3 and 3 <= datetime.date.today().month:
-                    if item.empresa == 'NEAD':
-                        valor_mes_nead['mar'] += item.valor_total
-                    valor_mes['mar'] += item.valor_total
-                if item.data_insert.month <= 4 and 4 <= datetime.date.today().month:
-                    if item.empresa == 'NEAD':
-                        valor_mes_nead['abr'] += item.valor_total
-                    valor_mes['abr'] += item.valor_total
-                if item.data_insert.month <= 5 and 5 <= datetime.date.today().month:
-                    if item.empresa == 'NEAD':
-                        valor_mes_nead['maio'] += item.valor_total
-                    valor_mes['maio'] += item.valor_total
-                if item.data_insert.month <= 6 and 6 <= datetime.date.today().month:
-                    if item.empresa == 'NEAD':
-                        valor_mes_nead['jun'] += item.valor_total
-                    valor_mes['jun'] += item.valor_total
-                if item.data_insert.month <= 7 and 7 <= datetime.date.today().month:
-                    if item.empresa == 'NEAD':
-                        valor_mes_nead['jul'] += item.valor_total
-                    valor_mes['jul'] += item.valor_total
-                if item.data_insert.month <= 8 and 8 <= datetime.date.today().month:
-                    if item.empresa == 'NEAD':
-                        valor_mes_nead['ago'] += item.valor_total
-                    valor_mes['ago'] += item.valor_total
-                if item.data_insert.month <= 9 and 9 <= datetime.date.today().month:
-                    if item.empresa == 'NEAD':
-                        valor_mes_nead['set'] += item.valor_total
-                    valor_mes['set'] += item.valor_total
-                if item.data_insert.month <= 10 and 10 <= datetime.date.today().month:
-                    if item.empresa == 'NEAD':
-                        valor_mes_nead['out'] += item.valor_total
-                    valor_mes['out'] += item.valor_total
-                if item.data_insert.month <= 11 and 11 <= datetime.date.today().month:
-                    if item.empresa == 'NEAD':
-                        valor_mes_nead['nov'] += item.valor_total
-                    valor_mes['nov'] += item.valor_total
-                if item.data_insert.month <= 12 and 12 <= datetime.date.today().month:
-                    if item.empresa == 'NEAD':
-                        valor_mes_nead['dez'] += item.valor_total
-                    valor_mes['dez'] += item.valor_total
-    count = 0
-    total = 0
-    media = 0
-    total_servico = 0
-    media_servico = 0
-    total_geral = 0
-    total_nead = 0
-
-    for key in valor_mes_nead:
-        if valor_mes_nead[key] != 0:
-            total_nead += valor_mes_nead[key]
-        else:
-            valor_mes_nead[key] = '-'
-
-    for key in valor_mes_servicos:
-        if valor_mes_servicos[key] != 0:
-            valor_mes_total[key] += valor_mes_servicos[key]
-            count += 1
-            total_servico += valor_mes_servicos[key]
-        else:
-            valor_mes_servicos[key] = '-'
-    if count != 0 :      
-        media_servico = total_servico/count
-    else :
-        media_servico = total_servico
-    count = 0
-
-    for key in valor_mes:
-        if valor_mes[key] != 0:
-            valor_mes_total[key] += valor_mes[key]
-            count += 1
-            total += valor_mes[key]
-        else:
-            valor_mes[key] = '-'
+        for item in Hosting.objects.filter(hosting_senai='True'):
+            for ano in anos :
+                if(item.data_insert is None):
+                        continue
+                if ano == item.data_insert.year and item.data_delete == datetime.date(year = 2000, month= 1, day = 1) :
+                    if item.data_insert.month == 1 and 1 <= datetime.date.today().month:
+                        if item.empresa == 'NEAD':
+                            valor_mes_nead['jan'] += item.valor_total
+                        valor_mes['jan'] += item.valor_total
+                    if item.data_insert.month <= 2 and 2 <= datetime.date.today().month:
+                        if item.empresa == 'NEAD':
+                            valor_mes_nead['fev'] += item.valor_total
+                        valor_mes['fev'] += item.valor_total
+                    if item.data_insert.month <= 3 and 3 <= datetime.date.today().month:
+                        if item.empresa == 'NEAD':
+                            valor_mes_nead['mar'] += item.valor_total
+                        valor_mes['mar'] += item.valor_total
+                    if item.data_insert.month <= 4 and 4 <= datetime.date.today().month:
+                        if item.empresa == 'NEAD':
+                            valor_mes_nead['abr'] += item.valor_total
+                        valor_mes['abr'] += item.valor_total
+                    if item.data_insert.month <= 5 and 5 <= datetime.date.today().month:
+                        if item.empresa == 'NEAD':
+                            valor_mes_nead['maio'] += item.valor_total
+                        valor_mes['maio'] += item.valor_total
+                    if item.data_insert.month <= 6 and 6 <= datetime.date.today().month:
+                        if item.empresa == 'NEAD':
+                            valor_mes_nead['jun'] += item.valor_total
+                        valor_mes['jun'] += item.valor_total
+                    if item.data_insert.month <= 7 and 7 <= datetime.date.today().month:
+                        if item.empresa == 'NEAD':
+                            valor_mes_nead['jul'] += item.valor_total
+                        valor_mes['jul'] += item.valor_total
+                    if item.data_insert.month <= 8 and 8 <= datetime.date.today().month:
+                        if item.empresa == 'NEAD':
+                            valor_mes_nead['ago'] += item.valor_total
+                        valor_mes['ago'] += item.valor_total
+                    if item.data_insert.month <= 9 and 9 <= datetime.date.today().month:
+                        if item.empresa == 'NEAD':
+                            valor_mes_nead['set'] += item.valor_total
+                        valor_mes['set'] += item.valor_total
+                    if item.data_insert.month <= 10 and 10 <= datetime.date.today().month:
+                        if item.empresa == 'NEAD':
+                            valor_mes_nead['out'] += item.valor_total
+                        valor_mes['out'] += item.valor_total
+                    if item.data_insert.month <= 11 and 11 <= datetime.date.today().month:
+                        if item.empresa == 'NEAD':
+                            valor_mes_nead['nov'] += item.valor_total
+                        valor_mes['nov'] += item.valor_total
+                    if item.data_insert.month <= 12 and 12 <= datetime.date.today().month:
+                        if item.empresa == 'NEAD':
+                            valor_mes_nead['dez'] += item.valor_total
+                        valor_mes['dez'] += item.valor_total
     
-    if count != 0 : 
-        media = total/count
-    else :
-        media = total
+        count = 0
+        total = 0
+        media = 0
+        total_servico = 0
+        media_servico = 0
+        total_geral = 0
+        total_nead = 0
 
-    for key in valor_mes_total:
-        if valor_mes_total[key] != 0:
-            total_geral += valor_mes_total[key]
-        else:
-            valor_mes_total[key] = '-'
+        for key in valor_mes_nead:
+            if valor_mes_nead[key] != 0:
+                total_nead += valor_mes_nead[key]
+            else:
+                valor_mes_nead[key] = '-'
 
-    total_unidades = 0
-    for item in Unidades.objects.all() :
-        uni.append(unidade(item.sede, item.qtd_user, item.qtd_user/total_user*100, (float)(total_geral - total_nead)*(item.qtd_user/total_user)))
-        total_unidades += (float)(total_geral - total_nead)*(item.qtd_user/total_user)
+        for key in valor_mes_servicos:
+            if valor_mes_servicos[key] != 0:
+                valor_mes_total[key] += valor_mes_servicos[key]
+                count += 1
+                total_servico += valor_mes_servicos[key]
+            else:
+                valor_mes_servicos[key] = '-'
+        if count != 0 :      
+            media_servico = total_servico/count
+        else :
+            media_servico = total_servico
+        count = 0
 
-    return render(request, 'hosting/financeiro_senai.html', {'data': data, 'lista_anos': anos, 'valor_mes': valor_mes, 'media': round(media,2), 'previsao': round(media*12,2), 'total': round(total,2), 'mes_atual': datetime.date.today().strftime("%B"), 'valor_mes_servicos': valor_mes_servicos, 'total_servico': round(total_servico,2), 'media_servico': round(media_servico,2), 'previsao_servico': round(media_servico*12,2), 'valor_mes_total': valor_mes_total, 'total_geral': round(total_geral,2), 'valor_mes_nead': valor_mes_nead, 'total_nead': round(total_nead,2), 'unidades': uni, 'total_user': round(total_user,2), 'total_unidades': round(total_unidades, 2)})
+        for key in valor_mes:
+            if valor_mes[key] != 0:
+                valor_mes_total[key] += valor_mes[key]
+                count += 1
+                total += valor_mes[key]
+            else:
+                valor_mes[key] = '-'
+        
+        if count != 0 : 
+            media = total/count
+        else :
+            media = total
 
+        for key in valor_mes_total:
+            if valor_mes_total[key] != 0:
+                total_geral += valor_mes_total[key]
+            else:
+                valor_mes_total[key] = '-'
+
+        total_unidades = 0
+        for item in Unidades.objects.all() :
+            uni.append(unidade(item.sede, item.qtd_user, item.qtd_user/total_user*100, (float)(total_geral - total_nead)*(item.qtd_user/total_user)))
+            total_unidades += (float)(total_geral - total_nead)*(item.qtd_user/total_user)
+
+        return render(request, 'hosting/financeiro_senai.html', {'data': data, 'lista_anos': anos, 'valor_mes': valor_mes, 'media': round(media,2), 'previsao': round(media*12,2), 'total': round(total,2), 'mes_atual': datetime.date.today().strftime("%B"), 'valor_mes_servicos': valor_mes_servicos, 'total_servico': round(total_servico,2), 'media_servico': round(media_servico,2), 'previsao_servico': round(media_servico*12,2), 'valor_mes_total': valor_mes_total, 'total_geral': round(total_geral,2), 'valor_mes_nead': valor_mes_nead, 'total_nead': round(total_nead,2), 'unidades': uni, 'total_user': round(total_user,2), 'total_unidades': round(total_unidades, 2)})
+
+    return render(request, 'hosting/financeiro_senai.html')
 def get_years():
     anos = []
     for item in Hosting.objects.all():
@@ -366,15 +371,6 @@ class HostingList(ListView):
         context['tabela'] = 'SENAI'
         # context['teste'] = "teste"
         return context
-
-    def post(self, request, *args, **kwargs): 
-        
-        path = self.request.path
-        id = path.split('/')
-        item = Hosting.objects.get(id = id[2])
-        
-        print("foi")
-        return HttpResponseRedirect(self.success_url)
 
 class HostingCreate(CreateView):
     model = Hosting

@@ -221,7 +221,7 @@
             {% endfor %}
         </select> 
         <label>MÊS INICIAL: </label>
-        <select name="mes" >
+        <select name="mesI" >
                 <option selected= "selected" value="1">JANEIRO</option>
                 <option value="2">FEVEREIRO</option>
                 <option value="3">MARÇO</option>
@@ -236,7 +236,7 @@
                 <option value="12">DEZEMBRO</option>
         </select>
         <label>MÊS FINAL: </label>
-        <select name="mes" >
+        <select name="mesF" >
                 {% if mes_atual == 'January' %}
             <option selected= "selected" value="1">JANEIRO</option>
             <option value="2">FEVEREIRO</option>
@@ -407,7 +407,7 @@
             <tr bgcolor=#2e72af>
                     <th width=100>Casa</th>
                     <th width=100>JANEIRO</th>
-                    <th width=120>FEVEREIRO</th>
+                    <th width=110>FEVEREIRO</th>
                     <th width=75>MARÇO</th>
                     <th width=90>ABRIL</th>
                     <th width=75>MAIO</th>
