@@ -119,9 +119,7 @@ def financeiroSENAI(request):
     total_user = 0
     uni = []
 
-    print(request.POST)
-
-    if request.POST  :
+    if not any(request.POST)  :
         for item in Unidades.objects.all() :
             total_user += item.qtd_user
             
@@ -291,9 +289,453 @@ def financeiroSENAI(request):
             uni.append(unidade(item.sede, item.qtd_user, item.qtd_user/total_user*100, (float)(total_geral - total_nead)*(item.qtd_user/total_user)))
             total_unidades += (float)(total_geral - total_nead)*(item.qtd_user/total_user)
 
-        return render(request, 'hosting/financeiro_senai.html', {'data': data, 'lista_anos': anos, 'valor_mes': valor_mes, 'media': round(media,2), 'previsao': round(media*12,2), 'total': round(total,2), 'mes_atual': datetime.date.today().strftime("%B"), 'valor_mes_servicos': valor_mes_servicos, 'total_servico': round(total_servico,2), 'media_servico': round(media_servico,2), 'previsao_servico': round(media_servico*12,2), 'valor_mes_total': valor_mes_total, 'total_geral': round(total_geral,2), 'valor_mes_nead': valor_mes_nead, 'total_nead': round(total_nead,2), 'unidades': uni, 'total_user': round(total_user,2), 'total_unidades': round(total_unidades, 2)})
+        return render(request, 'hosting/financeiro_senai.html', {'data': data, 'lista_anos': anos, 'valor_mes': valor_mes, 'media': round(media,2), 'previsao': round(media*12,2), 'total': round(total,2), 'mes_atual': datetime.date.today().strftime("%B"), 'valor_mes_servicos': valor_mes_servicos, 'total_servico': round(total_servico,2), 'media_servico': round(media_servico,2), 'previsao_servico': round(media_servico*12,2), 'valor_mes_total': valor_mes_total, 'total_geral': round(total_geral,2), 'valor_mes_nead': valor_mes_nead, 'total_nead': round(total_nead,2), 'unidades': uni, 'total_user': round(total_user,2), 'total_unidades': round(total_unidades, 2), 'mes_i': 'January', 'ambiente': 'senai'})
+    else :
+        if request.POST['ambiente'] == 'senai':
+            mes_f = datetime.date(year = 2000, month= int(request.POST['mesF']), day = 1).strftime("%B")
+            mes_i = datetime.date(year = 2000, month= int(request.POST['mesI']), day = 1).strftime("%B")
+            for item in Unidades.objects.all() :
+                total_user += item.qtd_user
+                
+            for item in Backup_dados.objects.filter(casa='SENAI'):
+                for ano in anos :
+                    if(item.data_insert is None):
+                            continue
+                    if ano == item.data_insert.year and item.data_delete == datetime.date(year = 2000, month= 1, day = 1) :
+                        if item.data_insert.month == 1 and 1 <= datetime.date.today().month and 1 >= int(request.POST['mesI']) and 1 <= int(request.POST['mesF']) :
+                            valor_mes_servicos['jan'] += item.valor
+                        if item.data_insert.month <= 2 and 2 <= datetime.date.today().month and 2 >= int(request.POST['mesI']) and 2 <= int(request.POST['mesF']):
+                            valor_mes_servicos['fev'] += item.valor
+                        if item.data_insert.month <= 3 and 3 <= datetime.date.today().month and 3 >= int(request.POST['mesI']) and 3 <= int(request.POST['mesF']):
+                            valor_mes_servicos['mar'] += item.valor
+                        if item.data_insert.month <= 4 and 4 <= datetime.date.today().month and 4 >= int(request.POST['mesI']) and 4 <= int(request.POST['mesF']):
+                            valor_mes_servicos['abr'] += item.valor
+                        if item.data_insert.month <= 5 and 5 <= datetime.date.today().month and 5 >= int(request.POST['mesI']) and 5 <= int(request.POST['mesF']):
+                            valor_mes_servicos['maio'] += item.valor
+                        if item.data_insert.month <= 6 and 6 <= datetime.date.today().month and 6 >= int(request.POST['mesI']) and 6 <= int(request.POST['mesF']):
+                            valor_mes_servicos['jun'] += item.valor
+                        if item.data_insert.month <= 7 and 7 <= datetime.date.today().month and 7 >= int(request.POST['mesI']) and 7 <= int(request.POST['mesF']):
+                            valor_mes_servicos['jul'] += item.valor
+                        if item.data_insert.month <= 8 and 8 <= datetime.date.today().month and 8 >= int(request.POST['mesI']) and 8 <= int(request.POST['mesF']):
+                            valor_mes_servicos['ago'] += item.valor
+                        if item.data_insert.month <= 9 and 9 <= datetime.date.today().month and 9 >= int(request.POST['mesI']) and 9 <= int(request.POST['mesF']):
+                            valor_mes_servicos['set'] += item.valor
+                        if item.data_insert.month <= 10 and 10 <= datetime.date.today().month and 10 >= int(request.POST['mesI']) and 10 <= int(request.POST['mesF']):
+                            valor_mes_servicos['out'] += item.valor
+                        if item.data_insert.month <= 11 and 11 <= datetime.date.today().month and 11 >= int(request.POST['mesI']) and 11 <= int(request.POST['mesF']):
+                            valor_mes_servicos['nov'] += item.valor
+                        if item.data_insert.month <= 12 and 12 <= datetime.date.today().month and 12 >= int(request.POST['mesI']) and 12 <= int(request.POST['mesF']):
+                            valor_mes_servicos['dez'] += item.valor
 
-    return render(request, 'hosting/financeiro_senai.html')
+            for item in Servicos_adicionais.objects.filter(casa='SENAI'):
+                for ano in anos :
+                    if(item.data_insert is None):
+                            continue
+                    if ano == item.data_insert.year and item.data_delete == datetime.date(year = 2000, month= 1, day = 1) :
+                        if item.data_insert.month == 1 and 1 <= datetime.date.today().month and 1 >= int(request.POST['mesI']) and 1 <= int(request.POST['mesF']):
+                            valor_mes_servicos['jan'] += item.valor
+                        if item.data_insert.month <= 2 and 2 <= datetime.date.today().month and 2 >= int(request.POST['mesI']) and 2 <= int(request.POST['mesF']):
+                            valor_mes_servicos['fev'] += item.valor
+                        if item.data_insert.month <= 3 and 3 <= datetime.date.today().month and 3 >= int(request.POST['mesI']) and 3 <= int(request.POST['mesF']):
+                            valor_mes_servicos['mar'] += item.valor
+                        if item.data_insert.month <= 4 and 4 <= datetime.date.today().month and 4 >= int(request.POST['mesI']) and 4 <= int(request.POST['mesF']):
+                            valor_mes_servicos['abr'] += item.valor
+                        if item.data_insert.month <= 5 and 5 <= datetime.date.today().month and 5 >= int(request.POST['mesI']) and 5 <= int(request.POST['mesF']):
+                            valor_mes_servicos['maio'] += item.valor
+                        if item.data_insert.month <= 6 and 6 <= datetime.date.today().month and 6 >= int(request.POST['mesI']) and 6 <= int(request.POST['mesF']):
+                            valor_mes_servicos['jun'] += item.valor
+                        if item.data_insert.month <= 7 and 7 <= datetime.date.today().month and 7 >= int(request.POST['mesI']) and 7 <= int(request.POST['mesF']):
+                            valor_mes_servicos['jul'] += item.valor
+                        if item.data_insert.month <= 8 and 8 <= datetime.date.today().month and 8 >= int(request.POST['mesI']) and 8 <= int(request.POST['mesF']):
+                            valor_mes_servicos['ago'] += item.valor
+                        if item.data_insert.month <= 9 and 9 <= datetime.date.today().month and 9 >= int(request.POST['mesI']) and 9 <= int(request.POST['mesF']):
+                            valor_mes_servicos['set'] += item.valor
+                        if item.data_insert.month <= 10 and 10 <= datetime.date.today().month and 10 >= int(request.POST['mesI']) and 10 <= int(request.POST['mesF']):
+                            valor_mes_servicos['out'] += item.valor
+                        if item.data_insert.month <= 11 and 11 <= datetime.date.today().month and 11 >= int(request.POST['mesI']) and 11 <= int(request.POST['mesF']):
+                            valor_mes_servicos['nov'] += item.valor
+                        if item.data_insert.month <= 12 and 12 <= datetime.date.today().month and 12 >= int(request.POST['mesI']) and 12 <= int(request.POST['mesF']):
+                            valor_mes_servicos['dez'] += item.valor
+
+            for item in Hosting.objects.filter(hosting_senai='True'):
+                for ano in anos :
+                    if(item.data_insert is None):
+                            continue
+                    if ano == item.data_insert.year and item.data_delete == datetime.date(year = 2000, month= 1, day = 1) :
+                        if item.data_insert.month == 1 and 1 <= datetime.date.today().month and 1 >= int(request.POST['mesI']) and 1 <= int(request.POST['mesF']):
+                            if item.empresa == 'NEAD':
+                                valor_mes_nead['jan'] += item.valor_total
+                            valor_mes['jan'] += item.valor_total
+                        if item.data_insert.month <= 2 and 2 <= datetime.date.today().month and 2 >= int(request.POST['mesI']) and 2 <= int(request.POST['mesF']):
+                            if item.empresa == 'NEAD':
+                                valor_mes_nead['fev'] += item.valor_total
+                            valor_mes['fev'] += item.valor_total
+                        if item.data_insert.month <= 3 and 3 <= datetime.date.today().month and 3 >= int(request.POST['mesI']) and 3 <= int(request.POST['mesF']):
+                            if item.empresa == 'NEAD':
+                                valor_mes_nead['mar'] += item.valor_total
+                            valor_mes['mar'] += item.valor_total
+                        if item.data_insert.month <= 4 and 4 <= datetime.date.today().month and 4 >= int(request.POST['mesI']) and 4 <= int(request.POST['mesF']):
+                            if item.empresa == 'NEAD':
+                                valor_mes_nead['abr'] += item.valor_total
+                            valor_mes['abr'] += item.valor_total
+                        if item.data_insert.month <= 5 and 5 <= datetime.date.today().month and 5 >= int(request.POST['mesI']) and 5 <= int(request.POST['mesF']):
+                            if item.empresa == 'NEAD':
+                                valor_mes_nead['maio'] += item.valor_total
+                            valor_mes['maio'] += item.valor_total
+                        if item.data_insert.month <= 6 and 6 <= datetime.date.today().month and 6 >= int(request.POST['mesI']) and 6 <= int(request.POST['mesF']):
+                            if item.empresa == 'NEAD':
+                                valor_mes_nead['jun'] += item.valor_total
+                            valor_mes['jun'] += item.valor_total
+                        if item.data_insert.month <= 7 and 7 <= datetime.date.today().month and 7 >= int(request.POST['mesI']) and 7 <= int(request.POST['mesF']):
+                            if item.empresa == 'NEAD':
+                                valor_mes_nead['jul'] += item.valor_total
+                            valor_mes['jul'] += item.valor_total
+                        if item.data_insert.month <= 8 and 8 <= datetime.date.today().month and 8 >= int(request.POST['mesI']) and 8 <= int(request.POST['mesF']):
+                            if item.empresa == 'NEAD':
+                                valor_mes_nead['ago'] += item.valor_total
+                            valor_mes['ago'] += item.valor_total
+                        if item.data_insert.month <= 9 and 9 <= datetime.date.today().month and 9 >= int(request.POST['mesI']) and 9 <= int(request.POST['mesF']):
+                            if item.empresa == 'NEAD':
+                                valor_mes_nead['set'] += item.valor_total
+                            valor_mes['set'] += item.valor_total
+                        if item.data_insert.month <= 10 and 10 <= datetime.date.today().month and 10 >= int(request.POST['mesI']) and 10 <= int(request.POST['mesF']):
+                            if item.empresa == 'NEAD':
+                                valor_mes_nead['out'] += item.valor_total
+                            valor_mes['out'] += item.valor_total
+                        if item.data_insert.month <= 11 and 11 <= datetime.date.today().month and 11 >= int(request.POST['mesI']) and 11 <= int(request.POST['mesF']):
+                            if item.empresa == 'NEAD':
+                                valor_mes_nead['nov'] += item.valor_total
+                            valor_mes['nov'] += item.valor_total
+                        if item.data_insert.month <= 12 and 12 <= datetime.date.today().month and 12 >= int(request.POST['mesI']) and 12 <= int(request.POST['mesF']):
+                            if item.empresa == 'NEAD':
+                                valor_mes_nead['dez'] += item.valor_total
+                            valor_mes['dez'] += item.valor_total
+        
+            count = 0
+            total = 0
+            media = 0
+            total_servico = 0
+            media_servico = 0
+            total_geral = 0
+            total_nead = 0
+
+            for key in valor_mes_nead:
+                if valor_mes_nead[key] != 0:
+                    total_nead += valor_mes_nead[key]
+                else:
+                    valor_mes_nead[key] = '-'
+
+            for key in valor_mes_servicos:
+                if valor_mes_servicos[key] != 0:
+                    valor_mes_total[key] += valor_mes_servicos[key]
+                    count += 1
+                    total_servico += valor_mes_servicos[key]
+                else:
+                    valor_mes_servicos[key] = '-'
+
+            if count != 0 :      
+                media_servico = total_servico/count
+            else :
+                media_servico = total_servico
+            count = 0
+
+            for key in valor_mes:
+                if valor_mes[key] != 0:
+                    valor_mes_total[key] += valor_mes[key]
+                    count += 1
+                    total += valor_mes[key]
+                else:
+                    valor_mes[key] = '-'
+            
+            if count != 0 : 
+                media = total/count
+            else :
+                media = total
+
+            for key in valor_mes_total:
+                if valor_mes_total[key] != 0:
+                    total_geral += valor_mes_total[key]
+                else:
+                    valor_mes_total[key] = '-'
+
+            total_unidades = 0
+            for item in Unidades.objects.all() :
+                uni.append(unidade(item.sede, item.qtd_user, item.qtd_user/total_user*100, (float)(total_geral - total_nead)*(item.qtd_user/total_user)))
+                total_unidades += (float)(total_geral - total_nead)*(item.qtd_user/total_user)
+
+            return render(request, 'hosting/financeiro_senai.html', {'data': data, 'lista_anos': anos, 'valor_mes': valor_mes, 'media': round(media,2), 'previsao': round(media*12,2), 'total': round(total,2), 'mes_atual': mes_f, 'valor_mes_servicos': valor_mes_servicos, 'total_servico': round(total_servico,2), 'media_servico': round(media_servico,2), 'previsao_servico': round(media_servico*12,2), 'valor_mes_total': valor_mes_total, 'total_geral': round(total_geral,2), 'valor_mes_nead': valor_mes_nead, 'total_nead': round(total_nead,2), 'unidades': uni, 'total_user': round(total_user,2), 'total_unidades': round(total_unidades, 2), 'mes_i': mes_i, 'ambiente': request.POST['ambiente']})
+        else: 
+            mes_f = datetime.date(year = 2000, month= int(request.POST['mesF']), day = 1).strftime("%B")
+            mes_i = datetime.date(year = 2000, month= int(request.POST['mesI']), day = 1).strftime("%B")
+            valor_mes_fieb = {'jan': 0,'fev': 0,'mar': 0,'abr': 0,'maio': 0,'jun': 0,'jul': 0,'ago': 0,'set': 0,'out': 0,'nov': 0,'dez': 0}
+            valor_mes_sesi = {'jan': 0,'fev': 0,'mar': 0,'abr': 0,'maio': 0,'jun': 0,'jul': 0,'ago': 0,'set': 0,'out': 0,'nov': 0,'dez': 0}
+            valor_mes_iel = {'jan': 0,'fev': 0,'mar': 0,'abr': 0,'maio': 0,'jun': 0,'jul': 0,'ago': 0,'set': 0,'out': 0,'nov': 0,'dez': 0}
+
+            for item in Unidades.objects.all() :
+                total_user += item.qtd_user
+                
+            for item in Backup_dados.objects.filter(casa='SENAI'):
+                for ano in anos :
+                    if(item.data_insert is None):
+                            continue
+                    if ano == item.data_insert.year and item.data_delete == datetime.date(year = 2000, month= 1, day = 1) :
+                        if item.data_insert.month == 1 and 1 <= datetime.date.today().month and 1 >= int(request.POST['mesI']) and 1 <= int(request.POST['mesF']) :
+                            valor_mes_servicos['jan'] += item.valor
+                        if item.data_insert.month <= 2 and 2 <= datetime.date.today().month and 2 >= int(request.POST['mesI']) and 2 <= int(request.POST['mesF']):
+                            valor_mes_servicos['fev'] += item.valor
+                        if item.data_insert.month <= 3 and 3 <= datetime.date.today().month and 3 >= int(request.POST['mesI']) and 3 <= int(request.POST['mesF']):
+                            valor_mes_servicos['mar'] += item.valor
+                        if item.data_insert.month <= 4 and 4 <= datetime.date.today().month and 4 >= int(request.POST['mesI']) and 4 <= int(request.POST['mesF']):
+                            valor_mes_servicos['abr'] += item.valor
+                        if item.data_insert.month <= 5 and 5 <= datetime.date.today().month and 5 >= int(request.POST['mesI']) and 5 <= int(request.POST['mesF']):
+                            valor_mes_servicos['maio'] += item.valor
+                        if item.data_insert.month <= 6 and 6 <= datetime.date.today().month and 6 >= int(request.POST['mesI']) and 6 <= int(request.POST['mesF']):
+                            valor_mes_servicos['jun'] += item.valor
+                        if item.data_insert.month <= 7 and 7 <= datetime.date.today().month and 7 >= int(request.POST['mesI']) and 7 <= int(request.POST['mesF']):
+                            valor_mes_servicos['jul'] += item.valor
+                        if item.data_insert.month <= 8 and 8 <= datetime.date.today().month and 8 >= int(request.POST['mesI']) and 8 <= int(request.POST['mesF']):
+                            valor_mes_servicos['ago'] += item.valor
+                        if item.data_insert.month <= 9 and 9 <= datetime.date.today().month and 9 >= int(request.POST['mesI']) and 9 <= int(request.POST['mesF']):
+                            valor_mes_servicos['set'] += item.valor
+                        if item.data_insert.month <= 10 and 10 <= datetime.date.today().month and 10 >= int(request.POST['mesI']) and 10 <= int(request.POST['mesF']):
+                            valor_mes_servicos['out'] += item.valor
+                        if item.data_insert.month <= 11 and 11 <= datetime.date.today().month and 11 >= int(request.POST['mesI']) and 11 <= int(request.POST['mesF']):
+                            valor_mes_servicos['nov'] += item.valor
+                        if item.data_insert.month <= 12 and 12 <= datetime.date.today().month and 12 >= int(request.POST['mesI']) and 12 <= int(request.POST['mesF']):
+                            valor_mes_servicos['dez'] += item.valor
+
+            for item in Servicos_adicionais.objects.filter(casa='SENAI'):
+                for ano in anos :
+                    if(item.data_insert is None):
+                            continue
+                    if ano == item.data_insert.year and item.data_delete == datetime.date(year = 2000, month= 1, day = 1) :
+                        if item.data_insert.month == 1 and 1 <= datetime.date.today().month and 1 >= int(request.POST['mesI']) and 1 <= int(request.POST['mesF']):
+                            valor_mes_servicos['jan'] += item.valor
+                        if item.data_insert.month <= 2 and 2 <= datetime.date.today().month and 2 >= int(request.POST['mesI']) and 2 <= int(request.POST['mesF']):
+                            valor_mes_servicos['fev'] += item.valor
+                        if item.data_insert.month <= 3 and 3 <= datetime.date.today().month and 3 >= int(request.POST['mesI']) and 3 <= int(request.POST['mesF']):
+                            valor_mes_servicos['mar'] += item.valor
+                        if item.data_insert.month <= 4 and 4 <= datetime.date.today().month and 4 >= int(request.POST['mesI']) and 4 <= int(request.POST['mesF']):
+                            valor_mes_servicos['abr'] += item.valor
+                        if item.data_insert.month <= 5 and 5 <= datetime.date.today().month and 5 >= int(request.POST['mesI']) and 5 <= int(request.POST['mesF']):
+                            valor_mes_servicos['maio'] += item.valor
+                        if item.data_insert.month <= 6 and 6 <= datetime.date.today().month and 6 >= int(request.POST['mesI']) and 6 <= int(request.POST['mesF']):
+                            valor_mes_servicos['jun'] += item.valor
+                        if item.data_insert.month <= 7 and 7 <= datetime.date.today().month and 7 >= int(request.POST['mesI']) and 7 <= int(request.POST['mesF']):
+                            valor_mes_servicos['jul'] += item.valor
+                        if item.data_insert.month <= 8 and 8 <= datetime.date.today().month and 8 >= int(request.POST['mesI']) and 8 <= int(request.POST['mesF']):
+                            valor_mes_servicos['ago'] += item.valor
+                        if item.data_insert.month <= 9 and 9 <= datetime.date.today().month and 9 >= int(request.POST['mesI']) and 9 <= int(request.POST['mesF']):
+                            valor_mes_servicos['set'] += item.valor
+                        if item.data_insert.month <= 10 and 10 <= datetime.date.today().month and 10 >= int(request.POST['mesI']) and 10 <= int(request.POST['mesF']):
+                            valor_mes_servicos['out'] += item.valor
+                        if item.data_insert.month <= 11 and 11 <= datetime.date.today().month and 11 >= int(request.POST['mesI']) and 11 <= int(request.POST['mesF']):
+                            valor_mes_servicos['nov'] += item.valor
+                        if item.data_insert.month <= 12 and 12 <= datetime.date.today().month and 12 >= int(request.POST['mesI']) and 12 <= int(request.POST['mesF']):
+                            valor_mes_servicos['dez'] += item.valor
+
+            for item in Hosting.objects.filter(hosting_fieb='True'):
+                for ano in anos :
+                    if(item.data_insert is None):
+                            continue
+                    if ano == item.data_insert.year and item.data_delete == datetime.date(year = 2000, month= 1, day = 1) :
+                        if item.data_insert.month == 1 and 1 <= datetime.date.today().month and 1 >= int(request.POST['mesI']) and 1 <= int(request.POST['mesF']):
+                            if item.empresa == 'SENAI_GTI':
+                                valor_mes['jan'] += item.valor_total
+                            if item.empresa == 'FIEB':
+                                valor_mes_fieb['jan'] += item.valor_total
+                            if item.empresa == 'IEL':
+                                valor_mes_iel['jan'] += item.valor_total
+                            if item.empresa == 'SESI':
+                                valor_mes_sesi['jan'] += item.valor_total
+                        if item.data_insert.month <= 2 and 2 <= datetime.date.today().month and 2 >= int(request.POST['mesI']) and 2 <= int(request.POST['mesF']):
+                            if item.empresa == 'SENAI_GTI':
+                                valor_mes['fev'] += item.valor_total
+                            if item.empresa == 'FIEB':
+                                valor_mes_fieb['fev'] += item.valor_total
+                            if item.empresa == 'IEL':
+                                valor_mes_iel['fev'] += item.valor_total
+                            if item.empresa == 'SESI':
+                                valor_mes_sesi['fev'] += item.valor_total
+                        if item.data_insert.month <= 3 and 3 <= datetime.date.today().month and 3 >= int(request.POST['mesI']) and 3 <= int(request.POST['mesF']):
+                            if item.empresa == 'SENAI_GTI':
+                                valor_mes['mar'] += item.valor_total
+                            if item.empresa == 'FIEB':
+                                valor_mes_fieb['mar'] += item.valor_total
+                            if item.empresa == 'IEL':
+                                valor_mes_iel['mar'] += item.valor_total
+                            if item.empresa == 'SESI':
+                                valor_mes_sesi['mar'] += item.valor_total
+                        if item.data_insert.month <= 4 and 4 <= datetime.date.today().month and 4 >= int(request.POST['mesI']) and 4 <= int(request.POST['mesF']):
+                            if item.empresa == 'SENAI_GTI':
+                                valor_mes['abr'] += item.valor_total
+                            if item.empresa == 'FIEB':
+                                valor_mes_fieb['abr'] += item.valor_total
+                            if item.empresa_ieal == 'IEL':
+                                valor_mes['abr'] += item.valor_total
+                            if item.empresa == 'SESI':
+                                valor_mes_sesi['abr'] += item.valor_total
+                        if item.data_insert.month <= 5 and 5 <= datetime.date.today().month and 5 >= int(request.POST['mesI']) and 5 <= int(request.POST['mesF']):
+                            if item.empresa == 'SENAI_GTI':
+                                valor_mes['maio'] += item.valor_total
+                            if item.empresa == 'FIEB':
+                                valor_mes_fieb['maio'] += item.valor_total
+                            if item.empresa == 'IEL':
+                                valor_mes_iel['maio'] += item.valor_total
+                            if item.empresa == 'SESI':
+                                valor_mes_sesi['maio'] += item.valor_total
+                        if item.data_insert.month <= 6 and 6 <= datetime.date.today().month and 6 >= int(request.POST['mesI']) and 6 <= int(request.POST['mesF']):
+                            if item.empresa == 'SENAI_GTI':
+                                valor_mes['jun'] += item.valor_total
+                            if item.empresa == 'FIEB':
+                                valor_mes_fieb['jun'] += item.valor_total
+                            if item.empresa == 'IEL':
+                                valor_mes_iel['jun'] += item.valor_total
+                            if item.empresa == 'SESI':
+                                valor_mes_sesi['jun'] += item.valor_total
+                        if item.data_insert.month <= 7 and 7 <= datetime.date.today().month and 7 >= int(request.POST['mesI']) and 7 <= int(request.POST['mesF']):
+                            if item.empresa == 'SENAI_GTI':
+                                valor_mes['jul'] += item.valor_total
+                            if item.empresa == 'FIEB':
+                                valor_mes_fieb['jul'] += item.valor_total
+                            if item.empresa == 'IEL':
+                                valor_mes_iel['jul'] += item.valor_total
+                            if item.empresa == 'SESI':
+                                valor_mes_sesi['jul'] += item.valor_total
+                        if item.data_insert.month <= 8 and 8 <= datetime.date.today().month and 8 >= int(request.POST['mesI']) and 8 <= int(request.POST['mesF']):
+                            if item.empresa == 'SENAI_GTI':
+                                valor_mes['ago'] += item.valor_total
+                            if item.empresa == 'FIEB':
+                                valor_mes_fieb['ago'] += item.valor_total
+                            if item.empresa == 'IEL':
+                                valor_mes_iel['ago'] += item.valor_total
+                            if item.empresa == 'SESI':
+                                valor_mes_sesi['ago'] += item.valor_total
+                        if item.data_insert.month <= 9 and 9 <= datetime.date.today().month and 9 >= int(request.POST['mesI']) and 9 <= int(request.POST['mesF']):
+                            if item.empresa == 'SENAI_GTI':
+                                valor_mes['set'] += item.valor_total
+                            if item.empresa == 'FIEB':
+                                valor_mes_fieb['set'] += item.valor_total
+                            if item.empresa == 'IEL':
+                                valor_mes_iel['set'] += item.valor_total
+                            if item.empresa == 'SESI':
+                                valor_mes_sesi['set'] += item.valor_total
+                        if item.data_insert.month <= 10 and 10 <= datetime.date.today().month and 10 >= int(request.POST['mesI']) and 10 <= int(request.POST['mesF']):
+                            if item.empresa == 'SENAI_GTI':
+                                valor_mes['out'] += item.valor_total
+                            if item.empresa == 'FIEB':
+                                valor_mes_fieb['out'] += item.valor_total
+                            if item.empresa == 'IEL':
+                                valor_mes_iel['out'] += item.valor_total
+                            if item.empresa == 'SESI':
+                                valor_mes_sesi['out'] += item.valor_total
+                        if item.data_insert.month <= 11 and 11 <= datetime.date.today().month and 11 >= int(request.POST['mesI']) and 11 <= int(request.POST['mesF']):
+                            if item.empresa == 'SENAI_GTI':
+                                valor_mes['nov'] += item.valor_total
+                            if item.empresa == 'FIEB':
+                                valor_mes_fieb['nov'] += item.valor_total
+                            if item.empresa == 'IEL':
+                                valor_mes_iel['nov'] += item.valor_total
+                            if item.empresa == 'SESI':
+                                valor_mes_sesi['nov'] += item.valor_total
+                        if item.data_insert.month <= 12 and 12 <= datetime.date.today().month and 12 >= int(request.POST['mesI']) and 12 <= int(request.POST['mesF']):
+                            if item.empresa == 'SENAI_GTI':
+                                valor_mes['dez'] += item.valor_total
+                            if item.empresa == 'FIEB':
+                                valor_mes_fieb['dez'] += item.valor_total
+                            if item.empresa == 'IEL':
+                                valor_mes_iel['dez'] += item.valor_total
+                            if item.empresa == 'SESI':
+                                valor_mes_sesi['dez'] += item.valor_total
+        
+            count = 0
+            total = total_iel = total_sesi = total_fieb = 0
+            media = 0
+            total_servico = 0
+            media_servico = 0
+            total_geral = 0
+
+            for key in valor_mes_servicos:
+                if valor_mes_servicos[key] != 0:
+                    valor_mes_total[key] += valor_mes_servicos[key]
+                    count += 1
+                    total_servico += valor_mes_servicos[key]
+                else:
+                    valor_mes_servicos[key] = '-'
+
+            if count != 0 :      
+                media_servico = total_servico/count
+            else :
+                media_servico = total_servico
+
+            count = 0
+
+            for key in valor_mes:
+                if valor_mes[key] != 0:
+                    valor_mes_total[key] += valor_mes[key]
+                    count += 1
+                    total += valor_mes[key]
+                else:
+                    valor_mes[key] = '-'
+            
+            if count != 0 : 
+                media = total/count
+            else :
+                media = total
+            
+            count = 0
+            
+            for key in valor_mes_fieb:
+                if valor_mes_fieb[key] != 0:
+                    valor_mes_total[key] += valor_mes_fieb[key]
+                    count += 1
+                    total_fieb += valor_mes_fieb[key]
+                else:
+                    valor_mes_fieb[key] = '-'
+            
+            if count != 0 : 
+                media_fieb = total_fieb/count
+            else :
+                media_fieb = total_fieb
+
+            count = 0
+            
+            for key in valor_mes_sesi:
+                if valor_mes_sesi[key] != 0:
+                    valor_mes_total[key] += valor_mes_sesi[key]
+                    count += 1
+                    total_sesi += valor_mes_sesi[key]
+                else:
+                    valor_mes_sesi[key] = '-'
+            
+            if count != 0 : 
+                media_sesi = total_sesi/count
+            else :
+                media_sesi = total_sesi
+
+            count = 0
+            
+            for key in valor_mes_iel:
+                if valor_mes_iel[key] != 0:
+                    valor_mes_total[key] += valor_mes_iel[key]
+                    count += 1
+                    total_iel += valor_mes_iel[key]
+                else:
+                    valor_mes_iel[key] = '-'
+            
+            if count != 0 : 
+                media_iel = total_iel/count
+            else :
+                media_iel = total_iel
+
+            for key in valor_mes_total:
+                if valor_mes_total[key] != 0:
+                    total_geral += valor_mes_total[key]
+                else:
+                    valor_mes_total[key] = '-'
+
+            return render(request, 'hosting/financeiro_senai.html', {'data': data, 'lista_anos': anos, 'valor_mes': valor_mes, 'media': round(media,2), 'previsao': round(media*12,2), 'total': round(total,2), 'mes_atual': mes_f, 'valor_mes_servicos': valor_mes_servicos, 'total_servico': round(total_servico,2), 'media_servico': round(media_servico,2), 'previsao_servico': round(media_servico*12,2), 'valor_mes_total': valor_mes_total, 'total_geral': round(total_geral,2), 'mes_i': mes_i, 'ambiente': request.POST['ambiente'], 'valor_fieb': valor_mes_fieb, 'media_fieb': media_fieb, 'previsao_fieb': round(media_fieb*12,2), 'total_fieb': round(total_fieb,2), 'media_sesi': media_sesi, 'previsao_sesi': round(media_sesi*12,2), 'total_sesi': round(total_sesi,2), 'media_iel': media_iel, 'previsao_iel': round(media_iel*12,2), 'total_iel': round(total_iel,2), 'valor_sesi': valor_mes_sesi, 'valor_iel': valor_mes_iel})
+
 def get_years():
     anos = []
     for item in Hosting.objects.all():
@@ -387,6 +829,7 @@ class HostingCreate(CreateView):
     def form_valid(self, form):
         if(self.request.POST['ambiente'] == 'fieb'):
             form.instance.hosting_fieb = True
+            self.success_url = reverse_lazy('hosting_fieb')
         if(self.request.POST['ambiente'] == 'senai'):
             form.instance.hosting_senai = True
         if 'linux' in self.request.POST:
@@ -402,7 +845,7 @@ class HostingCreate(CreateView):
         form.instance.tipo = tipo(form.instance.cpu, form.instance.memoria, form.instance.linux)
         form.instance.recurso = recurso(form.instance.tipo)
         form.instance.perfil = self.request.POST['perfilTeste'].upper()
-        form.instance.valor_tabela = valorTabela(form, form.instance.perfil, form.instance.recurso)
+        form.instance.valor_tabela = valorTabela(form.instance.tipo_maq, form.instance.perfil, form.instance.recurso)
         form.instance.memoria_adicional = mem_adicional(form.instance.tipo, form.instance.memoria, form.instance.linux)
         form.instance.proc_adicional = cpu_adicional(form.instance.tipo, form.instance.cpu, form.instance.linux)
         form.instance.disco_adicional = disc_adicional(form.instance.disco, form.instance.islinux, form.instance.tipo)
@@ -482,14 +925,17 @@ def recurso(tipo):
     else:
         return 'AVANÇADO'
 
-def valorTabela(self, perfil, recurso):
+def valorTabela(maq, perfil, recurso):
     if(perfil == 'GOLD'):
         if(recurso == 'BÁSICO'):
             return 365.62
         if(recurso == 'INTERMEDIÁRIO'):
             return 581.08
         if(recurso == 'AVANÇADO'):
-            return 1022.02
+            if(maq == 'Fisico'):
+                return 2816.55
+            else:
+                return 1022.02
     if(perfil == 'PLATINUM'):
         if(recurso == 'BÁSICO'):
             return 548.43
@@ -572,7 +1018,7 @@ class HostingUpdate(UpdateView):
         form.instance.tipo = tipo(form.instance.cpu, form.instance.memoria, form.instance.linux)
         form.instance.recurso = recurso(form.instance.tipo)
         form.instance.perfil = self.request.POST['perfilTeste'].upper()
-        form.instance.valor_tabela = valorTabela(form, form.instance.perfil, form.instance.recurso)
+        form.instance.valor_tabela = valorTabela(form.instance.tipo_maq, form.instance.perfil, form.instance.recurso)
         form.instance.memoria_adicional = mem_adicional(form.instance.tipo, form.instance.memoria, form.instance.linux)
         form.instance.proc_adicional = cpu_adicional(form.instance.tipo, form.instance.cpu, form.instance.linux)
         form.instance.disco_adicional = disc_adicional(form.instance.disco, form.instance.islinux, form.instance.tipo)
@@ -618,7 +1064,7 @@ class HostingUpdate(UpdateView):
                 new_item.recurso = recurso(int(new_item.tipo))
                 new_item.data_insert = datetime.date.today()
                 new_item.data_delete = datetime.date(year = 2000, month= 1, day = 1)
-                new_item.valor_tabela = valorTabela(new_item,new_item.perfil, new_item.recurso)
+                new_item.valor_tabela = valorTabela(new_item.tipo_maq,new_item.perfil, new_item.recurso)
                 new_item.memoria_adicional = mem_adicional(int(new_item.tipo), int(new_item.memoria), new_item.linux)
                 new_item.proc_adicional = cpu_adicional(int(new_item.tipo), int(new_item.cpu), new_item.linux)
                 new_item.disco_adicional = disc_adicional(int(new_item.disco), new_item.linux, new_item.tipo)
@@ -661,7 +1107,7 @@ class HostingUpdate(UpdateView):
                 new_item.recurso = recurso(int(new_item.tipo))
                 new_item.data_insert = datetime.date.today()
                 new_item.data_delete = datetime.date(year = 2000, month= 1, day = 1)
-                new_item.valor_tabela = valorTabela(new_item,new_item.perfil, new_item.recurso)
+                new_item.valor_tabela = valorTabela(new_item.tipo_maq,new_item.perfil, new_item.recurso)
                 new_item.memoria_adicional = mem_adicional(int(new_item.tipo), int(new_item.memoria), new_item.linux)
                 new_item.proc_adicional = cpu_adicional(int(new_item.tipo), int(new_item.cpu), new_item.linux)
                 new_item.disco_adicional = disc_adicional(int(new_item.disco), new_item.linux, new_item.tipo)
@@ -703,7 +1149,7 @@ class HostingUpdate(UpdateView):
                 new_item.recurso = recurso(int(new_item.tipo))
                 new_item.data_insert = datetime.date.today()
                 new_item.data_delete = datetime.date(year = 2000, month= 1, day = 1)
-                new_item.valor_tabela = valorTabela(new_item,new_item.perfil, new_item.recurso)
+                new_item.valor_tabela = valorTabela(new_item.tipo_maq,new_item.perfil, new_item.recurso)
                 new_item.memoria_adicional = mem_adicional(int(new_item.tipo), int(new_item.memoria), new_item.linux)
                 new_item.proc_adicional = cpu_adicional(int(new_item.tipo), int(new_item.cpu), new_item.linux)
                 new_item.disco_adicional = disc_adicional(int(new_item.disco), new_item.linux, new_item.tipo)
@@ -743,7 +1189,7 @@ class HostingUpdate(UpdateView):
                 new_item.recurso = recurso(int(new_item.tipo))
                 new_item.data_insert = datetime.date.today()
                 new_item.data_delete = datetime.date(year = 2000, month= 1, day = 1)
-                new_item.valor_tabela = valorTabela(new_item,new_item.perfil, new_item.recurso)
+                new_item.valor_tabela = valorTabela(new_item.tipo_maq,new_item.perfil, new_item.recurso)
                 new_item.memoria_adicional = mem_adicional(int(new_item.tipo), int(new_item.memoria), new_item.linux)
                 new_item.proc_adicional = cpu_adicional(int(new_item.tipo), int(new_item.cpu), new_item.linux)
                 new_item.disco_adicional = disc_adicional(int(new_item.disco), new_item.linux, new_item.tipo)

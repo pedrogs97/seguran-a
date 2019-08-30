@@ -94,7 +94,6 @@
                 </select> 
             </p>
             <p>
-                {{ maq }}
                 <label>Tipo de Máquina: </label>
                 <select name="maquina" >
                     {% if maq == 'Fisica' %}
@@ -126,7 +125,7 @@
             <p>
                 <label>Tipo de Máquina: </label>
                 <select name="maquina" >
-                    {% if maquina == 'Virtual' %}
+                    {% if maq == 'Virtual' %}
                     <option value="virtual" selected="selected">Virtual</option>
                     <option value="fisico">Física</option>
                     {% else %}
