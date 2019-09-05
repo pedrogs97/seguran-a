@@ -21,32 +21,62 @@ def hostingFieb(request):
     data = datetime.date.today().strftime("%B - %Y")
     hosting_list = []
     date = datetime.date(year = 2000, month= 1, day = 1)
-    for item in Hosting.objects.all():
-        if item.hosting_fieb & (item.data_delete==date):
-            hosting_list.append(item)
     total= 0
     list_dic = []
     total_empresa = 0
     todas_empresas = []
 
-    for item in hosting_list:
-        todas_empresas.append(item.empresa)
+    if 'search' in request.GET:
+       
+        for item in Hosting.objects.all():  
+            if item.hosting_fieb & (item.data_delete==date) and (request.GET['search'].upper() in item.empresa or request.GET['search'].upper() in item.server or request.GET['search'] in item.descricao or request.GET['search'].capitalize() in item.descricao or request.GET['search'].upper() in item.descricao or request.GET['search'].capitalize() in item.descricao.capitalize()):
+                hosting_list.append(item)
 
-    for i in empresas(todas_empresas) :
-        dic = {}
-        dic['empresa'] = i
-        total_empresa = 0
+        if 'ordem' in request.GET :
+            if request.GET['ordem'] == 'crescente' :
+                hosting_list.sort(key=ordenar)
+            elif request.GET['ordem'] == 'decrescente' :
+                hosting_list.sort(reverse=True, key=ordenar)
+            else:
+                pass
+
         for item in hosting_list :
-            if(i == item.empresa) :
-                total_empresa = item.valor_total + total_empresa
-        dic['valor'] = total_empresa
-        list_dic.append(dic)
+                total += item.valor_total
+        print(hosting_list)
+        return render(request, 'hosting/hosting_fieb.html', {'mes': data, 'total': total, 'totalAno': total*12,'total_empresa': list_dic, 'hosting_list': hosting_list, 'tabela': 'SENAI', 'pesquisa':request.GET['search'], 'ordena': request.GET['ordem']})
+    else :
+        
+        if 'ordem' in request.GET :
+            if request.GET['ordem'] == 'crescente' :
+                hosting_list.sort(key=ordenar)
+            elif request.GET['ordem'] == 'decrescente' :
+                hosting_list.sort(reverse=True, key=ordenar)
+            else:
+                pass
 
-    for item in hosting_list :
-        total = item.valor_total + total
+        for item in Hosting.objects.all():
+            if item.hosting_fieb & (item.data_delete==date):
+                hosting_list.append(item)
+        
+
+        for item in hosting_list:
+            todas_empresas.append(item.empresa)
+
+        for i in empresas(todas_empresas) :
+            dic = {}
+            dic['empresa'] = i
+            total_empresa = 0
+            for item in hosting_list :
+                if(i == item.empresa) :
+                    total_empresa = item.valor_total + total_empresa
+            dic['valor'] = total_empresa
+            list_dic.append(dic)
+
+        for item in hosting_list :
+            total = item.valor_total + total
 
 
-    return render(request, 'hosting/hosting_fieb.html', {'mes': data, 'total': total, 'totalAno': total*12,'total_empresa': list_dic, 'hosting_list': hosting_list, 'tabela': 'SENAI'})
+        return render(request, 'hosting/hosting_fieb.html', {'mes': data, 'total': total, 'totalAno': total*12,'total_empresa': list_dic, 'hosting_list': hosting_list, 'tabela': 'SENAI', 'ordena': request.GET['ordem']})
 
 def servicos_adicionais(request):
     data = datetime.date.today().strftime("%B - %Y")
@@ -118,7 +148,7 @@ def financeiroSENAI(request):
     anos = get_years()
     total_user = 0
     uni = []
-
+    
     if not any(request.POST)  :
         for item in Unidades.objects.all() :
             total_user += item.qtd_user
@@ -748,70 +778,80 @@ def get_years():
     
     return anos
 
-def historico(request):
-    #colocar todos os meses no contex
-    #tentar pegar em qual mes foi clicado no ajax
-    #sabendo qual mes foi clicado, reexibir as tabelas para o mes selecionado
-    #colocar os 12 meses
-    hosting_list_mes1 = []
-    hosting_list_mes2 = []
-    hosting_list_mes3 = []
-    mes1 = None
-    mes2 = None
-    mes3 = None
-    for item in Hosting.objects.all():
-        if abs(item.data_insert - datetime.date.today().month)<=3 :
-            if abs(item.data_insert - datetime.date.today().month) == 1 :
-                mes1 = item.data_insert.strftime("%B")
-                hosting_list_mes1.append(item)
-            if abs(item.data_insert - datetime.date.today().month) == 2 :
-                mes2 = item.data_insert.strftime("%B")
-                hosting_list_mes2.append(item)
-            if abs(item.data_insert - datetime.date.today().month) == 3 :
-                mes3 = item.data_insert.strftime("%B")
-                hosting_list_mes3.append(item)
-
-    return render(request, 'hosting/financeiro_senai.html', {'mes1': mes1, 'mes2': mes2, 'mes3': mes3, 'hosting1': hosting_list_mes1,'hosting2': hosting_list_mes2,'hosting3': hosting_list_mes3})
+def ordenar(hosting):
+    return hosting.valor_total
 
 class HostingList(ListView):
     model = Hosting
+
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super(HostingList, self).get_context_data(**kwargs)
         # Add in a QuerySet of all the 
         hosting_list = []
         date = datetime.date(year = 2000, month= 1, day = 1)
-        for item in Hosting.objects.all():
-            if item.hosting_senai & (item.data_delete==date):
-                hosting_list.append(item)
-
         context['mes'] = datetime.date.today().strftime("%B - %Y")
-        context['hosting_list'] = hosting_list
         total= 0
         list_dic = []
         total_empresa = 0
         todas_empresas = []
-        for item in context['hosting_list']:
-            todas_empresas.append(item.empresa)
 
-        for i in empresas(todas_empresas) :
-            dic = {}
-            dic['empresa'] = i
-            total_empresa = 0
+        if 'ordem' in self.request.GET :
+            context['ordena'] = self.request.GET['ordem']
+        if 'search' in self.request.GET and self.request.GET['search'] != '' :
+            for item in Hosting.objects.all():
+                if item.hosting_senai & (item.data_delete==date) and (self.request.GET['search'].upper() in item.empresa or self.request.GET['search'].upper() in item.server or self.request.GET['search'] in item.descricao or self.request.GET['search'].capitalize() in item.descricao or self.request.GET['search'].upper() in item.descricao or self.request.GET['search'].capitalize() in item.descricao.capitalize()):
+                    hosting_list.append(item)
+
+            if 'ordem' in self.request.GET :
+                if context['ordena'] == 'crescente' :
+                    hosting_list.sort(key=ordenar)
+                elif context['ordena'] == 'decrescente' :
+                    hosting_list.sort(reverse=True, key=ordenar)
+                else:
+                    pass
+
+            context['hosting_list'] = hosting_list
             for item in context['hosting_list'] :
-                if(i == item.empresa) :
-                    total_empresa = item.valor_total + total_empresa
-            dic['valor'] = total_empresa
-            list_dic.append(dic)
+                total += item.valor_total
 
-        for item in context['hosting_list'] :
-            total = item.valor_total + total
+            context['total'] = total
+            context['pesquisa'] = self.request.GET['search']
+        else: 
+            for item in Hosting.objects.all():
+                if item.hosting_senai & (item.data_delete==date):
+                    hosting_list.append(item)
 
-        context['total'] = total
-        context['totalAno'] = total*12
-        context['total_empresa'] = list_dic
-        context['tabela'] = 'SENAI'
-        # context['teste'] = "teste"
+            if 'ordem' in self.request.GET :
+                if context['ordena'] == 'drescente' :
+                    hosting_list.sort(key=ordenar)
+                elif context['ordena'] == 'decrescente' :
+                    hosting_list.sort(reverse=True,key=ordenar)
+                else:
+                    pass
+
+            context['hosting_list'] = hosting_list
+
+            for item in context['hosting_list']:
+                todas_empresas.append(item.empresa)
+
+            for i in empresas(todas_empresas) :
+                dic = {}
+                dic['empresa'] = i
+                total_empresa = 0
+                for item in context['hosting_list'] :
+                    if(i == item.empresa) :
+                        total_empresa = item.valor_total + total_empresa
+                dic['valor'] = total_empresa
+                list_dic.append(dic)
+
+            for item in context['hosting_list'] :
+                total = item.valor_total + total
+
+            context['total'] = total
+            context['totalAno'] = total*12
+            context['total_empresa'] = list_dic
+            context['tabela'] = 'SENAI'
         return context
 
 class HostingCreate(CreateView):
@@ -981,9 +1021,6 @@ def tipo(cpu, mem, islinux):
         return tipo_cpu
     else:
         return tipo_mem
-
-def hostingCreate(request):
-    return render(request, 'hosting\create_hosting.html')
 
 class HostingUpdate(UpdateView):
     model = Hosting

@@ -5,6 +5,7 @@ urlpatterns = [
     path('edit/<int:pk>', views.HostingUpdate.as_view(), name = 'hosting_edit'),
     path('create', views.HostingCreate.as_view(), name = 'hosting_create'),
     path('SENAI', views.HostingList.as_view(), name = 'hosting_list'),
+    # path('SENAI', views.historico, name = 'hosting_list'),
     path('SENAI/tabela-preco', views.tabelaPrecos, name = 'tabela_preco'),
     path('servico-adicional', views.servicos_adicionais, name = 'servicos'),
     path('', views.redirectSenai, name = 'redirect'),
