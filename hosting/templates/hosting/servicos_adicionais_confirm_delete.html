@@ -12,11 +12,11 @@
 </script>
 
 <body>
-    <h1>Hosting Delete</h1>
-    <form method="post" name="teste">{% csrf_token %}
-        Are you sure you want to delete "{{ object.empresa }}" - "{{ object.server }}"?
-        <input type="submit" class="button" value="OK" name="confirm_delete" />
+    <h1>Apagar serviço</h1>
+    <form method="post">{% csrf_token %}
+        Are you sure you want to delete "{{ object.casa }}" - "{{ object.descricao }}"?
+        <input type="submit" class="button" value="OK" />
     </form>
-    <button class="button" onclick="goBack()" name="cancel">Cancelar</button>
+    <button class="button" onclick="goBack()">Cancelar</button>
 </body>
 </html>

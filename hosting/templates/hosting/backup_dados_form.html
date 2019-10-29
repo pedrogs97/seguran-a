@@ -1,29 +1,26 @@
-<style type="text/css">
-    body {
-        background-color: rgb(187, 184, 184);
-        font-family: 'Courier New', Courier, monospace;
-    }
-
-    .button {
-        background-color: rgb(113, 114, 113);
-        border: none;
-        color: white;
-        padding: 8px 10px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 12px;
-        margin: 4px 2px;
-        cursor: pointer;
-    }
-    .button:hover
-    {
-        background-color: rgb(196, 117, 124);
-    }
-</style>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <title>{{ titulo }}</title>
+    {% load static %}
+        <link rel="stylesheet" type="text/css" href="{% static 'hosting/style.css' %}">
+        <link rel="icon" type="image/png" href="{% static "hosting/Logo_SENAICIMATEC.png" %}">
+</head>
 <body>
     <h1>{{ titulo }}</h1>
     <form method="post">{% csrf_token %}
+        <p>
+            <label>Ambiente: </label>
+            <select name="ambiente" >
+                {% if ambiente == 'senai' %}
+                <option value="senai" selected="selected">SENAI</option>
+                <option value="fieb">FIEB</option>
+                {% else %}
+                <option value="senai">SENAI</option>
+                <option value="fieb" selected="selected">FIEB</option>
+                {% endif %}
+            </select> 
+        </p>
         <p>
                 <label>Casa: </label>
                 <select name="casa" >
@@ -61,3 +58,4 @@
         <a class="button" href="{% url "add_client" %}">Cancelar</a>
     </form>
 </body>
+</html>

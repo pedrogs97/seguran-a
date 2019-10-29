@@ -1,6 +1,71 @@
-<h2>Login</h2>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Login</button>
-</form>
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'hosting/style.css' %}">
+    <link rel="icon" type="image/png" href="{% static "hosting/Logo_SENAICIMATEC.png" %}">
+    <style>
+      .container {
+        width: 90vw;
+        height: 100vh;
+        background: #6C7A89;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center
+      }
+      .containerHead {
+        width: 0vw;
+        height: 70vh;
+        background: #6C7A89;
+        display: flex;
+        flex-direction: column;
+        justify-content: start;
+        align-items: center;
+      }
+
+      .alignHead{
+        margin-left: 350px;
+      }
+
+      body {
+        background: #6C7A89;
+      }
+      
+      .button {
+        background-color: rgb(84, 87, 84);
+        border: none;
+        color: white;
+        padding: 8px 18px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 14px;
+        margin: 4px 2px;
+        margin-left: 120px;
+        cursor: pointer;
+        width: 100px;
+      }
+
+      </style>
+    </head>
+  <body>
+    <div class="container">
+      <div class="containerHead">
+        <img class="alignHead" src = "{% static "hosting/Logo_SENAICIMATEC.png" %}" alt = "Logo SENAI CIMATEC"  width="200"
+          height="100" >
+        <h1 class="alignHead">Login</h1>
+      </div>    
+      <form method="post"">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="button">Login</button>
+      </form>
+    </div>
+  </body>
+</html>

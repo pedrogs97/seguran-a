@@ -1,235 +1,19 @@
-{% load render_table from django_tables2 %}
-
-
+<html lang="pt-br">
 <head>
-    <title >Hosting-SENAI</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <style type="text/css">
-        /* * {box-sizing: border-box;} */
-
-        body {
-            background-color: rgb(187, 184, 184);
-            font-family: 'Courier New', Courier, monospace;
-        }
-
-        h1, h2 {
-            text-align: center;
-        }
-
-        .topnav {
-            background-color: #333;
-            overflow: hidden;
-            width: 1800px;
-        }
-
-        /* Style the links inside the navigation bar */
-        .topnav a {
-            float: left;
-            color: #f2f2f2;
-            text-align: center;
-            padding: 14px 16px;
-            text-decoration: none;
-            font-size: 17px;
-        }
-
-        .topnav div#user, .topnav a#logout {
-            float: right;
-            color: #f2f2f2;
-            text-align: center;
-            padding: 14px 16px;
-            text-decoration: none;
-            font-size: 17px;
-        }
-
-        /* Change the color of links on hover */
-        .topnav a:hover, .dropdown:hover {
-            background-color: rgb(151, 148, 148);
-            color: black;
-        }
-
-        /* Add a color to the active/current link */
-        .topnav a.active {
-            background-color: rgb(76, 107, 175);
-            color: white;
-        }
-
-        .search-container {
-            float: right;
-        }
-
-        input[type=text] {
-            padding: 6px;
-            margin-top: 8px;
-            font-size: 17px;
-            border: none;
-        }
-
-        .search-container button {
-            float: right;
-            padding: 6px 10px;
-            margin-top: 8px;
-            margin-right: 16px;
-            background: #ddd;
-            font-size: 21px;
-            border: none;
-            cursor: pointer;
-        }
-
-        .search-container button:hover {
-            background: #ccc;
-        }
-
-        @media screen and (max-width: 600px) {
-            .search-container {
-                float: none;
-            }
-            input[type=text], .search-container button {
-                float: none;
-                display: block;
-                text-align: left;
-                width: 100%;
-                margin: 0;
-                padding: 14px;
-            }
-            input[type=text] {
-                border: 1px solid #ccc;  
-            }  
-        }
-
-        .dropdown {
-            float: left;
-            overflow: hidden;
-        }
-
-        .dropdown .dropbtn {
-            font-size: 16px;
-            border: none;
-            outline: none;
-            color: white;
-            padding: 14px 16px;
-            background-color: inherit;
-            font-family: inherit; /* Important for vertical align on mobile phones */
-            margin: 0; /* Important for vertical align on mobile phones */
-        }
-
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: #f9f9f9;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 1;
-        }
-
-        .dropdown-content a {
-            float: none;
-            color: black;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-            text-align: left;
-        }
-
-        /* Add a grey background color to dropdown links on hover */
-        .dropdown-content a:hover {
-            background-color: #ddd;
-        }
-
-        /* Show the dropdown menu on hover */
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
-
-        .button {
-            background-color: rgb(113, 114, 113);
-            border: none;
-            color: white;
-            padding: 8px 18px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 4px 2px;
-            cursor: pointer;
-        }
-
-        .button:hover
-        {
-            background-color: rgb(196, 117, 124);
-        }
-
-        .remove {
-            background-color: rgb(113, 114, 113);
-            border: none;
-            color: white;
-            padding: 8px 8px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 10px;
-            cursor: pointer;
-        }
-
-        body {
-            background-color: #f6f6ff;
-            font-family: Calibri, Myriad;
-        }
-        
-        #main {
-            width: 1800px;
-            padding: 10px;
-            margin: auto;
-        }
-        
-        table.hosting {
-            margin: auto;
-            border-collapse: collapse;
-            border: 1px solid #fff; /*for older IE*/
-            border-style: hidden;
-            display: inline-table;    
-            }
-
-        table.hosting thead th {
-            padding: 8px;
-            font-size: large;
-        }
-        
-        table.hosting thead th {
-            width: 40%;	
-        }
-
-        table.hosting td{
-            background-color: rgb(212, 212, 212);
-        }
-
-        table.hosting th, table.hosting td {
-            padding: 3px;
-            border-width: 1px;
-            border-style: solid;
-            border-color: #919194 #ffff;
-        }
-
-        table.hosting tbody th {
-            text-align: center;
-            font-weight: bold;
-            color: #272626;
-        }
-        
-        table.hosting tfoot {
-            font-weight: bold;
-            font-size: large;
-            background-color: #687886;
-            color: #fff;
-        }
-        
-        table.hosting tr.even {
-            background-color: #fde9d9;
-        }
-
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title >Hosting-SENAI</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        {% load static %}
+        <link rel="stylesheet" type="text/css" href="{% static 'hosting/style.css' %}">
+        <link rel="icon" type="image/png" href="{% static "hosting/Logo_SENAICIMATEC.png" %}">
 </head>
+
 <body style="background-color:rgb(187, 184, 184); font-family: 'Courier New', Courier, monospace;">
     
+    <p style="align-items: center;"><img src = "{% static "hosting/Logo_SENAICIMATEC.png" %}" alt = "Logo SENAI CIMATEC"  width="150"
+    height="50" ></p>
     {% block content %}
     {% if user.is_authenticated %}
     <div class="topnav">
@@ -246,12 +30,12 @@
     <h2>{{ mes }}</h2>
     <form method="GET">{% csrf_token %} 
         <label style="margin-left: 50px;">Ordenar por: </label>
-        <select name="ordem" style="border: thin;">
-            {% if ordena == crescente %}
+        <select name="ordem" style="border: thin; height: 22;">
+            {% if ordena == 'crescente' %}
             <option value="data">Data de inserção</option>
             <option value="crescente" selected="selected">Valor Crescente</option>
             <option value="decrescente">Valor Decrescente</option>
-            {% elif ordena == decrescente %}
+            {% elif ordena == 'decrescente' %}
             <option value="data">Data de inserção</option>
             <option value="crescente">Valor Crescente</option>
             <option value="decrescente" selected="selected">Valor Decrescente</option>
@@ -261,14 +45,31 @@
             <option value="decrescente">Valor Decrescente</option>
             {% endif %}
         </select> 
+        <label style="margin-left: 50px;">Meses anteriores: </label>
+        <select name="meses" style="border: thin; height: 22;">
+            {% if mes_selecionado == mes_atual %}
+            <option value="{{ mes_atual }}" selected="selected">{{ mes_atual }}</option>
+            <option value="{{ mes_anterior }}">{{mes_anterior}}</option>
+            <option value="{{ mes_anterior2 }}">{{ mes_anterior2 }}</option>
+            {% elif mes_selecionado == mes_anterior %}
+            <option value="{{ mes_atual }}">{{ mes_atual }}</option>
+            <option value="{{ mes_anterior }}" selected="selected">{{mes_anterior}}</option>
+            <option value="{{ mes_anterior2 }}">{{ mes_anterior2 }}</option>
+            {% else %}
+            <option value="{{ mes_atual }}">{{ mes_atual }}</option>
+            <option value="{{ mes_anterior }}">{{mes_anterior}}</option>
+            <option value="{{ mes_anterior2 }}" selected="selected">{{ mes_anterior2 }}</option>
+            {% endif %}
+        </select> 
         <input type="submit" class="button" value="OK" />
+        
         <div class="search-container">  
             {% if pesquisa is None %}
             <input type="text" placeholder="Search..." name="search">
             {% else %}
             <input type="text" placeholder="Search..." name="search" value="{{ pesquisa }}">
             {% endif %}
-            <input type="submit" class="button" value="OK" />
+            <input type="submit" class="button" value="Pesquisar" />
             
         </div>
     </form>
@@ -370,3 +171,5 @@
     {% endif %}
     {% endblock %}
 </body>
+
+</html>

@@ -1,151 +1,18 @@
+<html lang="pt-br">
 <head>
-    <title >Hosting-SENAI</title>
-    <style type="text/css">
-
-        body {
-            background-color: rgb(187, 184, 184);
-            font-family: 'Courier New', Courier, monospace;
-        }
-
-        h1, h2 {
-            text-align: center;
-        }
-
-        .topnav {
-            background-color: #333;
-            overflow: hidden;
-        }
-
-        /* Style the links inside the navigation bar */
-        .topnav a {
-            float: left;
-            color: #f2f2f2;
-            text-align: center;
-            padding: 14px 16px;
-            text-decoration: none;
-            font-size: 17px;
-        }
-
-        .topnav div#user, .topnav a#logout {
-            float: right;
-            color: #f2f2f2;
-            text-align: center;
-            padding: 14px 16px;
-            text-decoration: none;
-            font-size: 17px;
-        }
-
-        /* Change the color of links on hover */
-        .topnav a:hover, .dropdown:hover {
-            background-color: rgb(151, 148, 148);
-            color: black;
-        }
-
-        /* Add a color to the active/current link */
-        .topnav a.active {
-            background-color: rgb(76, 107, 175);
-            color: white;
-        }
-
-        .dropdown {
-            float: left;
-            overflow: hidden;
-        }
-
-        .dropdown .dropbtn {
-            font-size: 16px;
-            border: none;
-            outline: none;
-            color: white;
-            padding: 14px 16px;
-            background-color: inherit;
-            font-family: inherit; /* Important for vertical align on mobile phones */
-            margin: 0; /* Important for vertical align on mobile phones */
-        }
-
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: #f9f9f9;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 1;
-        }
-
-        .dropdown-content a {
-            float: none;
-            color: black;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-            text-align: left;
-        }
-
-        /* Add a grey background color to dropdown links on hover */
-        .dropdown-content a:hover {
-            background-color: #ddd;
-        }
-
-        /* Show the dropdown menu on hover */
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
-
-        .button {
-            background-color: rgb(113, 114, 113);
-            border: none;
-            color: white;
-            padding: 8px 18px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 4px 2px;
-            cursor: pointer;
-        }
-
-        .button:hover
-        {
-            background-color: rgb(196, 117, 124);
-        }
-
-        .remove {
-            background-color: rgb(113, 114, 113);
-            border: none;
-            color: white;
-            padding: 8px 8px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 10px;
-            cursor: pointer;
-        }
-
-        body {
-            background-color: #f6f6ff;
-            font-family: Calibri, Myriad;
-        }
-
-    </style>
-
-    <script>
-    // When the user clicks on <div>, open the popup
-    function myFunction() {
-        
-        if(confirm("Are you sure?"))
-            var popup = document.getElementById("myPopup");
-            popup.classList.toggle("show");
-            // for(;i>0; i--){
-            //     popup.classList.toggle("dissmiss")
-            // }
-    }
-    </script>
-
-    
-
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title >Adicionar Cliente</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        {% load static %}
+        <link rel="stylesheet" type="text/css" href="{% static 'hosting/style.css' %}">
+        <link rel="icon" type="image/png" href="{% static "hosting/Logo_SENAICIMATEC.png" %}">
 </head>
+
 <body style="background-color:rgb(187, 184, 184); font-family: 'Courier New', Courier, monospace;">
-    
+    <p style="align-items: center;"><img src = "{% static "hosting/Logo_SENAICIMATEC.png" %}" alt = "Logo SENAI CIMATEC"  width="150"
+        height="50" ></p>
     {% block content %}
     {% if user.is_authenticated %}
     <div class="topnav">
@@ -155,32 +22,22 @@
             <a href="{% url 'tabela_preco' %}">Tabela de Preços</a>
             <a class="active" href="{% url 'add_client' %}">Adicionar Cliente</a>
             <a href="{% url 'financeiro_senai' %}">Financeiro</a>
-            <!-- <div class="dropdown">
-                <button class="dropbtn">Anteriores
-                  <i class="fa fa-caret-down"></i>
-                </button>
-                <div class="dropdown-content">
-                  <a href="#">Janeiro</a>
-                  <a href="#">Fevereiro</a>
-                  <a href="#">Março</a>
-                  <a href="#">Abril</a>
-                  <a href="#">Maio</a>
-                  <a href="#">Junho</a>
-                </div>
-            </div> -->
             <a id="logout" href="{% url 'logout' %}">Logout</a>
             <div id="user">Bem vindo, {{ user.username }}</div>
         </div> 
     <br/>
-    <p style="word-wrap: break-word; width: 300;">Adicionar um novo Hosting. FIEB e SENAI.</p>
-    <a class="button" href="{% url 'hosting_create' %}" >Novo Servidor</a>
+    <p style="word-wrap: break-word; width: 200;">Adicionar um novo Hosting. FIEB e SENAI.</p>
+    <a class="button" href="{%url 'hosting_create' %}">Novo Servidor</a>
+
     <p style="margin-left: 350px; margin-top: -95px; word-wrap: break-word; width: 300;">Adicionar um novo Serviço adicional. FIEB e SENAI.</p>
-    <a style="margin-left: 350px;" class="button" href="{% url 'servicos_adicionais' %}">Novo Serviço</a>
+    <a style="margin-left: 350px;" class="button" href="{%url 'servicos_adicionais' %}">Novo Serviço</a>
+
     <p style="margin-left: 700px; margin-top: -95px; word-wrap: break-word; width: 300;">Adicionar um novo serviço de Backup. FIEB e SENAI.</p>
-    <a style="margin-left: 700px;" class="button" href="{% url 'backup_adicionais' %}">Novo Backup</a>
+    <a style="margin-left: 700px;" class="button" href="{%url 'backup_adicionais' %}">Novo Backup</a>
     {% else %}
     <p>You are not logged in</p>
     <a class="button" href="{% url 'login' %}">Login</a>
     {% endif %}
     {% endblock %}
 </body>
+</html>

@@ -38,6 +38,7 @@ class Servicos_adicionais(models.Model):
     valor = models.DecimalField(max_digits=10,decimal_places=2, blank=True, default=0.00)
     data_insert = models.DateField(default= None, blank=True)
     data_delete = models.DateField(default=None, blank=True)
+    ambiente = models.CharField(max_length=5, default='', verbose_name='Ambiente', blank=True)
 
 class Backup_dados(models.Model):
     casa = models.CharField(max_length=50, blank=True)
@@ -48,6 +49,7 @@ class Backup_dados(models.Model):
     valor = models.DecimalField(max_digits=10,decimal_places=2, blank=True)
     data_insert = models.DateField(default= None, blank=True)
     data_delete = models.DateField(default=None, blank=True)
+    ambiente = models.CharField(max_length=5, default='', verbose_name='Ambiente', blank=True)
 
 class Unidades(models.Model):
     sede = models.CharField(max_length=150, blank=True)

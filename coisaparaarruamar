@@ -1,0 +1,13 @@
+o retorno e parametros do metodo somar_serivco; (OK)
+a exclusao e edição de serviços e backup tem que ser igual ao de hosting;
+melhorar os parametros do metodo valor_mes_serv;(OK)
+utilzar os metodos auxiliares no resto do metodo financeiroSENAI;(OK)
+melhorar a documentação;
+terminar a implementação de meses anteriores no ambiente senai e implementar no ambiente fieb;(OK)
+implementar a edição das tabelas de preço;
+pesquisar o porque do botão não funcionar na dela de adicionar;(OK)
+#======================== URGENTE ================================================#
+rever a forma que está sendo exibida os hostings e o financeiro - um hosting inserido no mes de julho precisa aparecer até o mês atual, caso não tenha sido excluido;
+o mês atual precisa ser de acordo com a regra de negócio;
+"fechar" o mês melhor - noção de quando fecha um mês na regra de negócio;
+no script precisa verificar se o hosting já foi inserido, para nao repetir;

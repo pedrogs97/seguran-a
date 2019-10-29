@@ -1,28 +1,10 @@
-<style type="text/css">
-    body {
-        background-color: rgb(187, 184, 184);
-        font-family: 'Courier New', Courier, monospace;
-    }
-
-    .button {
-        background-color: rgb(113, 114, 113);
-        border: none;
-        color: white;
-        padding: 8px 10px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 12px;
-        margin: 4px 2px;
-        cursor: pointer;
-    }
-
-    .button:hover
-    {
-        background-color: rgb(196, 117, 124);
-    }
-</style>
-
+<html lang="pt-br">
+<head>
+    <title>Confirmação</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'hosting/style.css' %}">
+    <link rel="icon" type="image/png" href="{% static "hosting/Logo_SENAICIMATEC.png" %}">
+</head>
 <script>
         function goBack() {
           window.history.back();
@@ -30,10 +12,11 @@
         </script>
 
 <body>
-    <h1>Hosting Delete</h1>
+    <h1>Apagar backup</h1>
     <form method="post">{% csrf_token %}
-        Are you sure you want to delete "{{ object.empresa }}" - "{{ object.server }}"?
+        Are you sure you want to delete "{{ object.casa }}" - "{{ object.descricao }}"?
         <input type="submit" class="button" value="OK" />
-        <button class="button" onclick="goBack()">Cancelar</button>
     </form>
+    <button class="button" onclick="goBack()">Cancelar</button>
 </body>
+</html>

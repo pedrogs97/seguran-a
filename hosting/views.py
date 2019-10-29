@@ -2,848 +2,310 @@ from django.shortcuts import render
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from .models import Hosting, Servicos_adicionais, Backup_dados, Unidades
+from .helper import Auxiliares
 from django.urls import reverse_lazy
 from django.contrib.auth import authenticate, login
 from django.shortcuts import render
-from django_tables2 import RequestConfig
-from .tables import HostingTable, SimpleTable
 from django.shortcuts import redirect
-import django_tables2
 import datetime
 from django.core import serializers
 from django.http import HttpResponseRedirect
 
-# Create your views here.
-def add_client(request):
-    return render(request, 'hosting/add_client.html')
+class Paginas:
+    @staticmethod
+    def tabelaPrecos(request):
+        """
+            Método que gerencia a página de tabela de preços. 
+            Recebe como parâmetro 'request' da pagina que possue GET e POST da página.
+        """
+        data_inteira = Auxiliares.mes_atual(datetime.date.today())
+        data = data_inteira.strftime("%B - %Y")
+        teste = 'Recurso'
+        return render(request, 'hosting/tabela_preco.html', {'data': data, 'teste': teste})
+    @staticmethod
+    def add_client(request):
+        """
+            Método que gerencia a página de inserção de clientes para escolha de hosting, serviço adicional ou backup.
+            Recebe como parâmetro 'request' da pagina que possue GET e POST da página.
+        """
+        return render(request, 'hosting/add_client.html')
+    @staticmethod
+    def hostingFieb(request):
+        """
+            Método que gerencia a página que apresenta os hostings do ambiente fieb.
+            Recebe como parâmetro 'request' da pagina que possue GET e POST da página.
+        """
+        data = datetime.date.today().strftime("%B - %Y")
+        hosting_list = []
+        hosting_list_search = []
+        date = datetime.date(year = 2000, month= 1, day = 1)
+        total= 0
+        list_dic = []
+        ordena = None
+        mes_selecionado = datetime.date.today().strftime('%B - %Y')
+        mes_atual = datetime.date.today().strftime('%B - %Y')
 
-def hostingFieb(request):
-    data = datetime.date.today().strftime("%B - %Y")
-    hosting_list = []
-    date = datetime.date(year = 2000, month= 1, day = 1)
-    total= 0
-    list_dic = []
-    total_empresa = 0
-    todas_empresas = []
+        if datetime.date.today().month != 1 and datetime.date.today().month != 2:
+            mes_anterior = datetime.date(year = datetime.date.today().year, month= datetime.date.today().month - 1, day = datetime.date.today().day).strftime('%B - %Y')
+            mes_anterior2 = datetime.date(year = datetime.date.today().year, month= datetime.date.today().month - 2, day = datetime.date.today().day).strftime('%B - %Y')
 
-    if 'search' in request.GET:
-       
-        for item in Hosting.objects.all():  
-            if item.hosting_fieb & (item.data_delete==date) and (request.GET['search'].upper() in item.empresa or request.GET['search'].upper() in item.server or request.GET['search'] in item.descricao or request.GET['search'].capitalize() in item.descricao or request.GET['search'].upper() in item.descricao or request.GET['search'].capitalize() in item.descricao.capitalize()):
-                hosting_list.append(item)
+        elif datetime.date.today().month == 1:
+            mes_anterior = datetime.date(year = datetime.date.today().year - 1, month= 12 , day = datetime.date.today().day).strftime('%B - %Y')
+            mes_anterior2 = datetime.date(year = datetime.date.today().year - 1, month= 11 - 2, day = datetime.date.today().day).strftime('%B - %Y')
 
-        if 'ordem' in request.GET :
-            if request.GET['ordem'] == 'crescente' :
-                hosting_list.sort(key=ordenar)
-            elif request.GET['ordem'] == 'decrescente' :
-                hosting_list.sort(reverse=True, key=ordenar)
-            else:
-                pass
+        else:
+            mes_anterior = datetime.date(year = datetime.date.today().year, month= datetime.date.today().month - 1, day = datetime.date.today().day).strftime('%B - %Y')
+            mes_anterior2 = datetime.date(year = datetime.date.today().year, month= 12, day = datetime.date.today().day).strftime('%B - %Y')
 
-        for item in hosting_list :
-                total += item.valor_total
-        print(hosting_list)
-        return render(request, 'hosting/hosting_fieb.html', {'mes': data, 'total': total, 'totalAno': total*12,'total_empresa': list_dic, 'hosting_list': hosting_list, 'tabela': 'SENAI', 'pesquisa':request.GET['search'], 'ordena': request.GET['ordem']})
-    else :
+        if 'meses' in request.GET :
+            hosting_list_search = list(Hosting.objects.filter(hosting_fieb=True))
+            mes_selecionado = request.GET['meses']
+            mes = request.GET['meses'].split('-')
+            hosting_list = Auxiliares.search(mes[0].strip(), mes[1].strip(), hosting_list_search)
+        else:
+            hosting_list = list(Hosting.objects.filter(hosting_fieb=True, data_delete=date))
+
+        if 'search' in request.GET and request.GET['search'] != '':
         
-        if 'ordem' in request.GET :
-            if request.GET['ordem'] == 'crescente' :
-                hosting_list.sort(key=ordenar)
-            elif request.GET['ordem'] == 'decrescente' :
-                hosting_list.sort(reverse=True, key=ordenar)
-            else:
-                pass
+            for item in hosting_list:  
+                if (request.GET['search'].upper() in item.empresa or request.GET['search'].upper() in item.server or request.GET['search'] in item.descricao or request.GET['search'].capitalize() in item.descricao or request.GET['search'].upper() in item.descricao or request.GET['search'].capitalize() in item.descricao.capitalize()):
+                    hosting_list_search.append(item)
 
-        for item in Hosting.objects.all():
-            if item.hosting_fieb & (item.data_delete==date):
-                hosting_list.append(item)
-        
+            if 'ordem' in request.GET :
+                ordena = request.GET['ordem']
+                hosting_list_search = Auxiliares.ordenar(ordena, hosting_list_search)
 
-        for item in hosting_list:
-            todas_empresas.append(item.empresa)
-
-        for i in empresas(todas_empresas) :
-            dic = {}
-            dic['empresa'] = i
-            total_empresa = 0
             for item in hosting_list :
-                if(i == item.empresa) :
-                    total_empresa = item.valor_total + total_empresa
-            dic['valor'] = total_empresa
-            list_dic.append(dic)
+                    total += item.valor_total
 
-        for item in hosting_list :
-            total = item.valor_total + total
-
-
-        return render(request, 'hosting/hosting_fieb.html', {'mes': data, 'total': total, 'totalAno': total*12,'total_empresa': list_dic, 'hosting_list': hosting_list, 'tabela': 'SENAI', 'ordena': request.GET['ordem']})
-
-def servicos_adicionais(request):
-    data = datetime.date.today().strftime("%B - %Y")
-    servico_list = []
-    backup_list = []
-    date = datetime.date(year = 2000, month= 1, day = 1)
-
-    for item in Servicos_adicionais.objects.all():
-        if (item.data_delete==date):
-            servico_list.append(item)
-
-    for item in Backup_dados.objects.all():
-        if (item.data_delete==date):
-            backup_list.append(item)
-
-    total_servico = 0
-    total_backup = 0
-    total_casa_senai = 0
-    total_casa_fieb = 0
-    total_casa_sesi = 0
-    total_casa_iel = 0
-    for item in backup_list :
-        if(item.casa == 'SENAI') & (item.data_delete==date) :
-            total_casa_senai = item.valor + total_casa_senai
-        if(item.casa == 'FIEB') & (item.data_delete==date) :
-            total_casa_fieb = item.valor + total_casa_fieb
-        if(item.casa == 'SESI') & (item.data_delete==date) :
-            total_casa_sesi = item.valor + total_casa_sesi
-        if(item.casa == 'IEL') & (item.data_delete==date) :
-            total_casa_iel = item.valor + total_casa_iel
-        total_backup = item.valor + total_backup
-
-    for item in servico_list :
-        if(item.casa == 'SENAI') & (item.data_delete==date) :
-            total_casa_senai = item.valor + total_casa_senai
-        if(item.casa == 'FIEB') & (item.data_delete==date) :
-            total_casa_fieb = item.valor + total_casa_fieb
-        if(item.casa == 'SESI') & (item.data_delete==date) :
-            total_casa_sesi = item.valor + total_casa_sesi
-        if(item.casa == 'IEL') & (item.data_delete==date) :
-            total_casa_iel = item.valor + total_casa_iel
-        total_servico = item.valor + total_servico
-    
-    return render(request, 'hosting/servicos.html', {'mes': data, 'total_servico': total_servico, 'total_backup': total_backup, 'total_adicionais': total_servico + total_backup, 'casa_senai': total_casa_senai, 'casa_sesi': total_casa_sesi, 'casa_fieb': total_casa_fieb, 'casa_iel': total_casa_iel, 'backup_list': backup_list, 'servico_list': servico_list})
-
-def redirectSenai(request):
-    return redirect('hosting_list')
-
-def tabelaPrecos(request):
-    data = datetime.date.today().strftime("%B - %Y")
-    return render(request, 'hosting/tabela_preco.html', {'data': data})
-
-def empresas(todas_empresas):
-    emp = []
-    for item in todas_empresas:
-        if(emp is None):
-            emp.append(item)
-        if(emp.count(item) == 0 ):
-            emp.append(item)
-    return emp
-
-def financeiroSENAI(request):
-    data = datetime.date.today().strftime("%B - %Y")
-    anos = []
-    valor_mes = {'jan': 0,'fev': 0,'mar': 0,'abr': 0,'maio': 0,'jun': 0,'jul': 0,'ago': 0,'set': 0,'out': 0,'nov': 0,'dez': 0}
-    valor_mes_nead = {'jan': 0,'fev': 0,'mar': 0,'abr': 0,'maio': 0,'jun': 0,'jul': 0,'ago': 0,'set': 0,'out': 0,'nov': 0,'dez': 0}
-    valor_mes_servicos = {'jan': 0,'fev': 0,'mar': 0,'abr': 0,'maio': 0,'jun': 0,'jul': 0,'ago': 0,'set': 0,'out': 0,'nov': 0,'dez': 0}
-    valor_mes_total = {'jan': 0,'fev': 0,'mar': 0,'abr': 0,'maio': 0,'jun': 0,'jul': 0,'ago': 0,'set': 0,'out': 0,'nov': 0,'dez': 0}
-    anos = get_years()
-    total_user = 0
-    uni = []
-    
-    if not any(request.POST)  :
-        for item in Unidades.objects.all() :
-            total_user += item.qtd_user
-            
-        for item in Backup_dados.objects.filter(casa='SENAI'):
-            for ano in anos :
-                if(item.data_insert is None):
-                        continue
-                if ano == item.data_insert.year and item.data_delete == datetime.date(year = 2000, month= 1, day = 1) :
-                    if item.data_insert.month == 1 and 1 <= datetime.date.today().month:
-                        valor_mes_servicos['jan'] += item.valor
-                    if item.data_insert.month <= 2 and 2 <= datetime.date.today().month:
-                        valor_mes_servicos['fev'] += item.valor
-                    if item.data_insert.month <= 3 and 3 <= datetime.date.today().month:
-                        valor_mes_servicos['mar'] += item.valor
-                    if item.data_insert.month <= 4 and 4 <= datetime.date.today().month:
-                        valor_mes_servicos['abr'] += item.valor
-                    if item.data_insert.month <= 5 and 5 <= datetime.date.today().month:
-                        valor_mes_servicos['maio'] += item.valor
-                    if item.data_insert.month <= 6 and 6 <= datetime.date.today().month:
-                        valor_mes_servicos['jun'] += item.valor
-                    if item.data_insert.month <= 7 and 7 <= datetime.date.today().month:
-                        valor_mes_servicos['jul'] += item.valor
-                    if item.data_insert.month <= 8 and 8 <= datetime.date.today().month:
-                        valor_mes_servicos['ago'] += item.valor
-                    if item.data_insert.month <= 9 and 9 <= datetime.date.today().month:
-                        valor_mes_servicos['set'] += item.valor
-                    if item.data_insert.month <= 10 and 10 <= datetime.date.today().month:
-                        valor_mes_servicos['out'] += item.valor
-                    if item.data_insert.month <= 11 and 11 <= datetime.date.today().month:
-                        valor_mes_servicos['nov'] += item.valor
-                    if item.data_insert.month <= 12 and 12 <= datetime.date.today().month:
-                        valor_mes_servicos['dez'] += item.valor
-
-        for item in Servicos_adicionais.objects.filter(casa='SENAI'):
-            for ano in anos :
-                if(item.data_insert is None):
-                        continue
-                if ano == item.data_insert.year and item.data_delete == datetime.date(year = 2000, month= 1, day = 1) :
-                    if item.data_insert.month == 1 and 1 <= datetime.date.today().month:
-                        valor_mes_servicos['jan'] += item.valor
-                    if item.data_insert.month <= 2 and 2 <= datetime.date.today().month:
-                        valor_mes_servicos['fev'] += item.valor
-                    if item.data_insert.month <= 3 and 3 <= datetime.date.today().month:
-                        valor_mes_servicos['mar'] += item.valor
-                    if item.data_insert.month <= 4 and 4 <= datetime.date.today().month:
-                        valor_mes_servicos['abr'] += item.valor
-                    if item.data_insert.month <= 5 and 5 <= datetime.date.today().month:
-                        valor_mes_servicos['maio'] += item.valor
-                    if item.data_insert.month <= 6 and 6 <= datetime.date.today().month:
-                        valor_mes_servicos['jun'] += item.valor
-                    if item.data_insert.month <= 7 and 7 <= datetime.date.today().month:
-                        valor_mes_servicos['jul'] += item.valor
-                    if item.data_insert.month <= 8 and 8 <= datetime.date.today().month:
-                        valor_mes_servicos['ago'] += item.valor
-                    if item.data_insert.month <= 9 and 9 <= datetime.date.today().month:
-                        valor_mes_servicos['set'] += item.valor
-                    if item.data_insert.month <= 10 and 10 <= datetime.date.today().month:
-                        valor_mes_servicos['out'] += item.valor
-                    if item.data_insert.month <= 11 and 11 <= datetime.date.today().month:
-                        valor_mes_servicos['nov'] += item.valor
-                    if item.data_insert.month <= 12 and 12 <= datetime.date.today().month:
-                        valor_mes_servicos['dez'] += item.valor
-
-
-        for item in Hosting.objects.filter(hosting_senai='True'):
-            for ano in anos :
-                if(item.data_insert is None):
-                        continue
-                if ano == item.data_insert.year and item.data_delete == datetime.date(year = 2000, month= 1, day = 1) :
-                    if item.data_insert.month == 1 and 1 <= datetime.date.today().month:
-                        if item.empresa == 'NEAD':
-                            valor_mes_nead['jan'] += item.valor_total
-                        valor_mes['jan'] += item.valor_total
-                    if item.data_insert.month <= 2 and 2 <= datetime.date.today().month:
-                        if item.empresa == 'NEAD':
-                            valor_mes_nead['fev'] += item.valor_total
-                        valor_mes['fev'] += item.valor_total
-                    if item.data_insert.month <= 3 and 3 <= datetime.date.today().month:
-                        if item.empresa == 'NEAD':
-                            valor_mes_nead['mar'] += item.valor_total
-                        valor_mes['mar'] += item.valor_total
-                    if item.data_insert.month <= 4 and 4 <= datetime.date.today().month:
-                        if item.empresa == 'NEAD':
-                            valor_mes_nead['abr'] += item.valor_total
-                        valor_mes['abr'] += item.valor_total
-                    if item.data_insert.month <= 5 and 5 <= datetime.date.today().month:
-                        if item.empresa == 'NEAD':
-                            valor_mes_nead['maio'] += item.valor_total
-                        valor_mes['maio'] += item.valor_total
-                    if item.data_insert.month <= 6 and 6 <= datetime.date.today().month:
-                        if item.empresa == 'NEAD':
-                            valor_mes_nead['jun'] += item.valor_total
-                        valor_mes['jun'] += item.valor_total
-                    if item.data_insert.month <= 7 and 7 <= datetime.date.today().month:
-                        if item.empresa == 'NEAD':
-                            valor_mes_nead['jul'] += item.valor_total
-                        valor_mes['jul'] += item.valor_total
-                    if item.data_insert.month <= 8 and 8 <= datetime.date.today().month:
-                        if item.empresa == 'NEAD':
-                            valor_mes_nead['ago'] += item.valor_total
-                        valor_mes['ago'] += item.valor_total
-                    if item.data_insert.month <= 9 and 9 <= datetime.date.today().month:
-                        if item.empresa == 'NEAD':
-                            valor_mes_nead['set'] += item.valor_total
-                        valor_mes['set'] += item.valor_total
-                    if item.data_insert.month <= 10 and 10 <= datetime.date.today().month:
-                        if item.empresa == 'NEAD':
-                            valor_mes_nead['out'] += item.valor_total
-                        valor_mes['out'] += item.valor_total
-                    if item.data_insert.month <= 11 and 11 <= datetime.date.today().month:
-                        if item.empresa == 'NEAD':
-                            valor_mes_nead['nov'] += item.valor_total
-                        valor_mes['nov'] += item.valor_total
-                    if item.data_insert.month <= 12 and 12 <= datetime.date.today().month:
-                        if item.empresa == 'NEAD':
-                            valor_mes_nead['dez'] += item.valor_total
-                        valor_mes['dez'] += item.valor_total
-    
-        count = 0
-        total = 0
-        media = 0
-        total_servico = 0
-        media_servico = 0
-        total_geral = 0
-        total_nead = 0
-
-        for key in valor_mes_nead:
-            if valor_mes_nead[key] != 0:
-                total_nead += valor_mes_nead[key]
-            else:
-                valor_mes_nead[key] = '-'
-
-        for key in valor_mes_servicos:
-            if valor_mes_servicos[key] != 0:
-                valor_mes_total[key] += valor_mes_servicos[key]
-                count += 1
-                total_servico += valor_mes_servicos[key]
-            else:
-                valor_mes_servicos[key] = '-'
-        if count != 0 :      
-            media_servico = total_servico/count
+            return render(request, 'hosting/hosting_fieb.html', {'mes': data, 'total': total, 'totalAno': total*12,'total_empresa': list_dic, 'hosting_list': hosting_list_search, 'tabela': 'SENAI', 'pesquisa':request.GET['search'], 'ordena': ordena, 'mes_atual': mes_atual, 'mes_selecionado': mes_selecionado, 'mes_selecionado': mes_selecionado, 'mes_atual': mes_atual, 'mes_anterior': mes_anterior, 'mes_anterior2': mes_anterior2})
         else :
-            media_servico = total_servico
-        count = 0
+            if 'ordem' in request.GET :
+                ordena = request.GET['ordem']
+                hosting_list = Auxiliares.ordenar(ordena, hosting_list)
 
-        for key in valor_mes:
-            if valor_mes[key] != 0:
-                valor_mes_total[key] += valor_mes[key]
-                count += 1
-                total += valor_mes[key]
-            else:
-                valor_mes[key] = '-'
+            list_dic = Auxiliares.empresas(hosting_list)
+
+            for item in hosting_list :
+                total = item.valor_total + total
+
+            return render(request, 'hosting/hosting_fieb.html', {'mes': data, 'total': total, 'totalAno': total*12,'total_empresa': list_dic, 'hosting_list': hosting_list, 'tabela': 'SENAI', 'ordena': ordena, 'mes_selecionado': mes_selecionado, 'mes_atual': mes_atual, 'mes_anterior': mes_anterior, 'mes_anterior2': mes_anterior2, 'mes_atual': mes_atual, 'mes_selecionado': mes_selecionado})
+    @staticmethod
+    def servicos_adicionais(request):
+        """
+            Método que gerencia a página que apresenta os serviços adicionais e backups.
+            Recebe como parâmetro 'request' da pagina que possue GET e POST da página.
+        """
+        data = datetime.date.today().strftime("%B - %Y")
+        servico_list = []
+        backup_list = []
+        date = datetime.date(year = 2000, month= 1, day = 1)
+        ambiente = 'senai'
+
+        if 'ambiente' in request.GET:
+            if request.GET['ambiente'] == 'senai':
+                for item in list(Servicos_adicionais.objects.filter(ambiente='senai', data_delete=date)):
+                    servico_list.append(item)
+
+                for item in list(Backup_dados.objects.filter(ambiente='senai', data_delete=date)):
+                    backup_list.append(item)
+            elif request.GET['ambiente'] == 'fieb':
+                ambiente = 'fieb'
+                for item in list(Servicos_adicionais.objects.filter(ambiente='fieb', data_delete=date)):
+                    servico_list.append(item)
+
+                for item in list(Backup_dados.objects.filter(ambiente='fieb', data_delete=date)):
+                    backup_list.append(item)
+        else:
+            for item in list(Servicos_adicionais.objects.filter(ambiente='senai', data_delete=date)):
+                servico_list.append(item)
+
+            for item in list(Backup_dados.objects.filter(ambiente='senai', data_delete=date)):
+                backup_list.append(item)
+
+        totais = Auxiliares.somar_servicos(servico_list, backup_list)
+
+        return render(request, 'hosting/servicos.html', {'mes': data, 'total_servico': totais['servico'], 'total_backup': totais['backup'], 'total_adicionais': totais['total'], 'casa_senai': totais['senai'], 'casa_sesi': totais['sesi'], 'casa_fieb': totais['fieb'], 'casa_iel': totais['iel'], 'backup_list': backup_list, 'servico_list': servico_list, 'ambiente': ambiente})
+    @staticmethod
+    def redirectSenai(request):
+        """
+            Realiza o redicerionamento para HostingList (página inicial).
+        """
+        return redirect('hosting_list')
+    @staticmethod
+    def financeiroSENAI(request):
+        """
+            Método que gerencia a página do financeiro. 
+            Recebe como parâmetro 'request' da pagina que possue GET e POST da página.
+        """
+        data_inteira = Auxiliares.mes_atual(datetime.date.today())
+        data = data_inteira.strftime("%B - %Y")
+        valor_mes = Auxiliares.dic_meses()
+        valor_mes_nead = Auxiliares.dic_meses()
+        valor_mes_servicos = Auxiliares.dic_meses()
+        valor_mes_total = Auxiliares.dic_meses()
+        anos = Auxiliares.get_years()
+        total_user = 0
+        count = 0
+        uni = []
+        qtd_unidades = []
+        backup_list_senai = list(Backup_dados.objects.filter(ambiente='senai'))
+        servico_list_senai = list(Servicos_adicionais.objects.filter(ambiente='senai'))
+        hosting_list_senai = list(Hosting.objects.filter(hosting_senai='True'))
+
+        backup_list_fieb = list(Backup_dados.objects.filter(ambiente='fieb'))
+        servico_list_fieb = list(Servicos_adicionais.objects.filter(ambiente='fieb'))
+        hosting_list_fieb = list(Hosting.objects.filter(hosting_fieb='True'))
         
-        if count != 0 : 
-            media = total/count
-        else :
-            media = total
-
-        for key in valor_mes_total:
-            if valor_mes_total[key] != 0:
-                total_geral += valor_mes_total[key]
-            else:
-                valor_mes_total[key] = '-'
-
-        total_unidades = 0
-        for item in Unidades.objects.all() :
-            uni.append(unidade(item.sede, item.qtd_user, item.qtd_user/total_user*100, (float)(total_geral - total_nead)*(item.qtd_user/total_user)))
-            total_unidades += (float)(total_geral - total_nead)*(item.qtd_user/total_user)
-
-        return render(request, 'hosting/financeiro_senai.html', {'data': data, 'lista_anos': anos, 'valor_mes': valor_mes, 'media': round(media,2), 'previsao': round(media*12,2), 'total': round(total,2), 'mes_atual': datetime.date.today().strftime("%B"), 'valor_mes_servicos': valor_mes_servicos, 'total_servico': round(total_servico,2), 'media_servico': round(media_servico,2), 'previsao_servico': round(media_servico*12,2), 'valor_mes_total': valor_mes_total, 'total_geral': round(total_geral,2), 'valor_mes_nead': valor_mes_nead, 'total_nead': round(total_nead,2), 'unidades': uni, 'total_user': round(total_user,2), 'total_unidades': round(total_unidades, 2), 'mes_i': 'January', 'ambiente': 'senai'})
-    else :
-        if request.POST['ambiente'] == 'senai':
-            mes_f = datetime.date(year = 2000, month= int(request.POST['mesF']), day = 1).strftime("%B")
-            mes_i = datetime.date(year = 2000, month= int(request.POST['mesI']), day = 1).strftime("%B")
+        if not anos:
+            anos.append(2019)
+        if 'quantidade' in request.POST:
+            qtd_unidades = dict(request.POST)['quantidade']
             for item in Unidades.objects.all() :
+                if qtd_unidades:
+                    item.qtd_user = int(qtd_unidades[count])
+                    item.save()
+                    count+=1
+        for item in Unidades.objects.all() :
                 total_user += item.qtd_user
+        if request.GET:
+            if request.GET['ambiente'] == 'senai':
+                mes_f = datetime.date(year = 2000, month= int(request.GET['mesF']), day = 1).strftime("%B")
+                mes_i = datetime.date(year = 2000, month= int(request.GET['mesI']), day = 1).strftime("%B")
                 
-            for item in Backup_dados.objects.filter(casa='SENAI'):
-                for ano in anos :
-                    if(item.data_insert is None):
-                            continue
-                    if ano == item.data_insert.year and item.data_delete == datetime.date(year = 2000, month= 1, day = 1) :
-                        if item.data_insert.month == 1 and 1 <= datetime.date.today().month and 1 >= int(request.POST['mesI']) and 1 <= int(request.POST['mesF']) :
-                            valor_mes_servicos['jan'] += item.valor
-                        if item.data_insert.month <= 2 and 2 <= datetime.date.today().month and 2 >= int(request.POST['mesI']) and 2 <= int(request.POST['mesF']):
-                            valor_mes_servicos['fev'] += item.valor
-                        if item.data_insert.month <= 3 and 3 <= datetime.date.today().month and 3 >= int(request.POST['mesI']) and 3 <= int(request.POST['mesF']):
-                            valor_mes_servicos['mar'] += item.valor
-                        if item.data_insert.month <= 4 and 4 <= datetime.date.today().month and 4 >= int(request.POST['mesI']) and 4 <= int(request.POST['mesF']):
-                            valor_mes_servicos['abr'] += item.valor
-                        if item.data_insert.month <= 5 and 5 <= datetime.date.today().month and 5 >= int(request.POST['mesI']) and 5 <= int(request.POST['mesF']):
-                            valor_mes_servicos['maio'] += item.valor
-                        if item.data_insert.month <= 6 and 6 <= datetime.date.today().month and 6 >= int(request.POST['mesI']) and 6 <= int(request.POST['mesF']):
-                            valor_mes_servicos['jun'] += item.valor
-                        if item.data_insert.month <= 7 and 7 <= datetime.date.today().month and 7 >= int(request.POST['mesI']) and 7 <= int(request.POST['mesF']):
-                            valor_mes_servicos['jul'] += item.valor
-                        if item.data_insert.month <= 8 and 8 <= datetime.date.today().month and 8 >= int(request.POST['mesI']) and 8 <= int(request.POST['mesF']):
-                            valor_mes_servicos['ago'] += item.valor
-                        if item.data_insert.month <= 9 and 9 <= datetime.date.today().month and 9 >= int(request.POST['mesI']) and 9 <= int(request.POST['mesF']):
-                            valor_mes_servicos['set'] += item.valor
-                        if item.data_insert.month <= 10 and 10 <= datetime.date.today().month and 10 >= int(request.POST['mesI']) and 10 <= int(request.POST['mesF']):
-                            valor_mes_servicos['out'] += item.valor
-                        if item.data_insert.month <= 11 and 11 <= datetime.date.today().month and 11 >= int(request.POST['mesI']) and 11 <= int(request.POST['mesF']):
-                            valor_mes_servicos['nov'] += item.valor
-                        if item.data_insert.month <= 12 and 12 <= datetime.date.today().month and 12 >= int(request.POST['mesI']) and 12 <= int(request.POST['mesF']):
-                            valor_mes_servicos['dez'] += item.valor
+                    
+                valor_mes_servicos, valor_mes_servicosFSI = Auxiliares.somar_servicos(servico_list_senai,backup_list_senai, tipo='pesquisa', inicial=request.GET['mesI'], final=request.GET['mesF'], ano=request.GET['ano'])
+                valor_mes, valor_mes_nead = Auxiliares.valor_mes_nead_senai(hosting_list_senai, tipo='pesquisa', inicial=request.GET['mesI'], final=request.GET['mesF'], ano=request.GET['ano'])
+                valor_mes_total = Auxiliares.somar_total(valor_mes_nead, valor_mes, valor_mes_servicos, valor_mes_servicosFSI, soma_dic=True)
+                total_nead = Auxiliares.somar_total(valor_mes_nead)
+                total_geral = Auxiliares.somar_total(valor_mes_total)
+                total_servicoFSI = Auxiliares.somar_total(valor_mes_servicosFSI)
+                total_servico = Auxiliares.somar_total(valor_mes_servicos)
+                total = Auxiliares.somar_total(valor_mes)
 
-            for item in Servicos_adicionais.objects.filter(casa='SENAI'):
-                for ano in anos :
-                    if(item.data_insert is None):
-                            continue
-                    if ano == item.data_insert.year and item.data_delete == datetime.date(year = 2000, month= 1, day = 1) :
-                        if item.data_insert.month == 1 and 1 <= datetime.date.today().month and 1 >= int(request.POST['mesI']) and 1 <= int(request.POST['mesF']):
-                            valor_mes_servicos['jan'] += item.valor
-                        if item.data_insert.month <= 2 and 2 <= datetime.date.today().month and 2 >= int(request.POST['mesI']) and 2 <= int(request.POST['mesF']):
-                            valor_mes_servicos['fev'] += item.valor
-                        if item.data_insert.month <= 3 and 3 <= datetime.date.today().month and 3 >= int(request.POST['mesI']) and 3 <= int(request.POST['mesF']):
-                            valor_mes_servicos['mar'] += item.valor
-                        if item.data_insert.month <= 4 and 4 <= datetime.date.today().month and 4 >= int(request.POST['mesI']) and 4 <= int(request.POST['mesF']):
-                            valor_mes_servicos['abr'] += item.valor
-                        if item.data_insert.month <= 5 and 5 <= datetime.date.today().month and 5 >= int(request.POST['mesI']) and 5 <= int(request.POST['mesF']):
-                            valor_mes_servicos['maio'] += item.valor
-                        if item.data_insert.month <= 6 and 6 <= datetime.date.today().month and 6 >= int(request.POST['mesI']) and 6 <= int(request.POST['mesF']):
-                            valor_mes_servicos['jun'] += item.valor
-                        if item.data_insert.month <= 7 and 7 <= datetime.date.today().month and 7 >= int(request.POST['mesI']) and 7 <= int(request.POST['mesF']):
-                            valor_mes_servicos['jul'] += item.valor
-                        if item.data_insert.month <= 8 and 8 <= datetime.date.today().month and 8 >= int(request.POST['mesI']) and 8 <= int(request.POST['mesF']):
-                            valor_mes_servicos['ago'] += item.valor
-                        if item.data_insert.month <= 9 and 9 <= datetime.date.today().month and 9 >= int(request.POST['mesI']) and 9 <= int(request.POST['mesF']):
-                            valor_mes_servicos['set'] += item.valor
-                        if item.data_insert.month <= 10 and 10 <= datetime.date.today().month and 10 >= int(request.POST['mesI']) and 10 <= int(request.POST['mesF']):
-                            valor_mes_servicos['out'] += item.valor
-                        if item.data_insert.month <= 11 and 11 <= datetime.date.today().month and 11 >= int(request.POST['mesI']) and 11 <= int(request.POST['mesF']):
-                            valor_mes_servicos['nov'] += item.valor
-                        if item.data_insert.month <= 12 and 12 <= datetime.date.today().month and 12 >= int(request.POST['mesI']) and 12 <= int(request.POST['mesF']):
-                            valor_mes_servicos['dez'] += item.valor
+                media_servicoFSI = Auxiliares.valor_medio(valor_mes_servicosFSI)
+                media_servico = Auxiliares.valor_medio(valor_mes_servicos)
+                media = Auxiliares.valor_medio(valor_mes)
 
-            for item in Hosting.objects.filter(hosting_senai='True'):
-                for ano in anos :
-                    if(item.data_insert is None):
-                            continue
-                    if ano == item.data_insert.year and item.data_delete == datetime.date(year = 2000, month= 1, day = 1) :
-                        if item.data_insert.month == 1 and 1 <= datetime.date.today().month and 1 >= int(request.POST['mesI']) and 1 <= int(request.POST['mesF']):
-                            if item.empresa == 'NEAD':
-                                valor_mes_nead['jan'] += item.valor_total
-                            valor_mes['jan'] += item.valor_total
-                        if item.data_insert.month <= 2 and 2 <= datetime.date.today().month and 2 >= int(request.POST['mesI']) and 2 <= int(request.POST['mesF']):
-                            if item.empresa == 'NEAD':
-                                valor_mes_nead['fev'] += item.valor_total
-                            valor_mes['fev'] += item.valor_total
-                        if item.data_insert.month <= 3 and 3 <= datetime.date.today().month and 3 >= int(request.POST['mesI']) and 3 <= int(request.POST['mesF']):
-                            if item.empresa == 'NEAD':
-                                valor_mes_nead['mar'] += item.valor_total
-                            valor_mes['mar'] += item.valor_total
-                        if item.data_insert.month <= 4 and 4 <= datetime.date.today().month and 4 >= int(request.POST['mesI']) and 4 <= int(request.POST['mesF']):
-                            if item.empresa == 'NEAD':
-                                valor_mes_nead['abr'] += item.valor_total
-                            valor_mes['abr'] += item.valor_total
-                        if item.data_insert.month <= 5 and 5 <= datetime.date.today().month and 5 >= int(request.POST['mesI']) and 5 <= int(request.POST['mesF']):
-                            if item.empresa == 'NEAD':
-                                valor_mes_nead['maio'] += item.valor_total
-                            valor_mes['maio'] += item.valor_total
-                        if item.data_insert.month <= 6 and 6 <= datetime.date.today().month and 6 >= int(request.POST['mesI']) and 6 <= int(request.POST['mesF']):
-                            if item.empresa == 'NEAD':
-                                valor_mes_nead['jun'] += item.valor_total
-                            valor_mes['jun'] += item.valor_total
-                        if item.data_insert.month <= 7 and 7 <= datetime.date.today().month and 7 >= int(request.POST['mesI']) and 7 <= int(request.POST['mesF']):
-                            if item.empresa == 'NEAD':
-                                valor_mes_nead['jul'] += item.valor_total
-                            valor_mes['jul'] += item.valor_total
-                        if item.data_insert.month <= 8 and 8 <= datetime.date.today().month and 8 >= int(request.POST['mesI']) and 8 <= int(request.POST['mesF']):
-                            if item.empresa == 'NEAD':
-                                valor_mes_nead['ago'] += item.valor_total
-                            valor_mes['ago'] += item.valor_total
-                        if item.data_insert.month <= 9 and 9 <= datetime.date.today().month and 9 >= int(request.POST['mesI']) and 9 <= int(request.POST['mesF']):
-                            if item.empresa == 'NEAD':
-                                valor_mes_nead['set'] += item.valor_total
-                            valor_mes['set'] += item.valor_total
-                        if item.data_insert.month <= 10 and 10 <= datetime.date.today().month and 10 >= int(request.POST['mesI']) and 10 <= int(request.POST['mesF']):
-                            if item.empresa == 'NEAD':
-                                valor_mes_nead['out'] += item.valor_total
-                            valor_mes['out'] += item.valor_total
-                        if item.data_insert.month <= 11 and 11 <= datetime.date.today().month and 11 >= int(request.POST['mesI']) and 11 <= int(request.POST['mesF']):
-                            if item.empresa == 'NEAD':
-                                valor_mes_nead['nov'] += item.valor_total
-                            valor_mes['nov'] += item.valor_total
-                        if item.data_insert.month <= 12 and 12 <= datetime.date.today().month and 12 >= int(request.POST['mesI']) and 12 <= int(request.POST['mesF']):
-                            if item.empresa == 'NEAD':
-                                valor_mes_nead['dez'] += item.valor_total
-                            valor_mes['dez'] += item.valor_total
-        
-            count = 0
-            total = 0
-            media = 0
-            total_servico = 0
-            media_servico = 0
-            total_geral = 0
-            total_nead = 0
+                total_unidades = 0
+                for item in Unidades.objects.all() :
+                    uni.append(Unidade(item.sede, item.qtd_user, item.qtd_user/total_user*100, (float)(total_geral - total_nead)*(item.qtd_user/total_user)))
+                    total_unidades += (float)(total_geral - total_nead)*(item.qtd_user/total_user)
 
-            for key in valor_mes_nead:
-                if valor_mes_nead[key] != 0:
-                    total_nead += valor_mes_nead[key]
-                else:
-                    valor_mes_nead[key] = '-'
+                return render(request, 'hosting/financeiro_senai.html', {'data': data, 'lista_anos': anos, 'valor_mes': valor_mes, 'media': round(media,2), 'previsao': round(media*12,2), 'total': round(total,2), 'mes_atual': mes_f, 'valor_mes_servicos': valor_mes_servicos, 'total_servico': round(total_servico,2), 'media_servico': round(media_servico,2), 'previsao_servico': round(media_servico*12,2), 'valor_mes_total': valor_mes_total, 'total_geral': round(total_geral,2), 'valor_mes_nead': valor_mes_nead, 'total_nead': round(total_nead,2), 'unidades': uni, 'total_user': round(total_user,2), 'total_unidades': round(total_unidades, 2), 'mes_i': mes_i, 'ambiente': 'senai', 'valor_mes_servicosFSI': valor_mes_servicosFSI, 'media_servicoFSI': media_servicoFSI, 'total_servicoFSI': total_servicoFSI, 'previsao_servicoFSI': round(media_servicoFSI*12,2)})
+            else: 
+                mes_f = datetime.date(year = 2000, month= int(request.GET['mesF']), day = 1).strftime("%B")
+                mes_i = datetime.date(year = 2000, month= int(request.GET['mesI']), day = 1).strftime("%B")
+                    
+                valor_mes_servicos, valor_mes_servicosFSI = Auxiliares.somar_servicos(servico_list_fieb,backup_list_fieb, tipo='pesquisa', inicial=request.GET['mesI'], final=request.GET['mesF'], ano=request.GET['ano'])
+                valor_mes_total, valor_mes_fieb, valor_mes_gti, valor_mes_iel, valor_mes_sesi = Auxiliares.valor_mes_nead_senai(hosting_list_fieb, tipo='pesquisa', inicial=request.GET['mesI'], final=request.GET['mesF'], ano=request.GET['ano'], ambiente='fieb')
 
-            for key in valor_mes_servicos:
-                if valor_mes_servicos[key] != 0:
-                    valor_mes_total[key] += valor_mes_servicos[key]
-                    count += 1
-                    total_servico += valor_mes_servicos[key]
-                else:
-                    valor_mes_servicos[key] = '-'
+                valor_mes_total = Auxiliares.somar_total(valor_mes_total, valor_mes_servicosFSI, valor_mes_servicos, soma_dic=True)
+                total_servicoFSI = Auxiliares.somar_total(valor_mes_servicosFSI)
+                total = Auxiliares.somar_total(valor_mes_gti)
+                total_servico = Auxiliares.somar_total(valor_mes_servicos)
+                total_fieb = Auxiliares.somar_total(valor_mes_fieb)
+                total_sesi = Auxiliares.somar_total(valor_mes_sesi)
+                total_iel = Auxiliares.somar_total(valor_mes_iel)
+                total_geral = Auxiliares.somar_total(valor_mes_total)
+                media_servico = Auxiliares.somar_total(valor_mes_servicos)
+                media_servicoFSI = Auxiliares.valor_medio(valor_mes_servicosFSI)
+                media = Auxiliares.valor_medio(valor_mes_gti)
+                media_fieb = Auxiliares.valor_medio(valor_mes_fieb)
+                media_sesi = Auxiliares.valor_medio(valor_mes_sesi)
+                media_iel = Auxiliares.valor_medio(valor_mes_iel)
 
-            if count != 0 :      
-                media_servico = total_servico/count
-            else :
-                media_servico = total_servico
-            count = 0
 
-            for key in valor_mes:
-                if valor_mes[key] != 0:
-                    valor_mes_total[key] += valor_mes[key]
-                    count += 1
-                    total += valor_mes[key]
-                else:
-                    valor_mes[key] = '-'
-            
-            if count != 0 : 
-                media = total/count
-            else :
-                media = total
+                return render(request, 'hosting/financeiro_senai.html', {'data': data, 'lista_anos': anos, 'valor_mes': valor_mes_gti, 'media': round(media,2), 'previsao': round(media*12,2), 'total': round(total,2), 'mes_atual': mes_f, 'valor_mes_total': valor_mes_total, 'total_geral': round(total_geral,2), 'mes_i': mes_i, 'ambiente': request.GET['ambiente'], 'valor_fieb': valor_mes_fieb, 'media_fieb': round(media_fieb,2), 'previsao_fieb': round(media_fieb*12,2), 'total_fieb': round(total_fieb,2), 'media_sesi': round(media_sesi,2), 'previsao_sesi': round(media_sesi*12,2), 'total_sesi': round(total_sesi,2), 'media_iel': round(media_iel, 2), 'previsao_iel': round(media_iel*12,2), 'total_iel': round(total_iel,2), 'valor_sesi': valor_mes_sesi, 'valor_iel': valor_mes_iel, 'valor_mes_servicosFSI': valor_mes_servicosFSI, 'media_servicoFSI': round(media_servicoFSI,2), 'total_servicoFSI': round(total_servicoFSI,2), 'previsao_servicoFSI': round(media_servicoFSI*12,2), 'valor_mes_servicos': valor_mes_servicos, 'total_servico': round(total_servico,2), 'media_servico': round(media_servico,2), 'previsao_servico': round(media_servico*12,2)})
+        else:
+            valor_mes_servicos, valor_mes_servicosFSI = Auxiliares.somar_servicos(servico_list_senai,backup_list_senai, tipo='mes')
+            valor_mes, valor_mes_nead = Auxiliares.valor_mes_nead_senai(hosting_list_senai)
+            valor_mes_total = Auxiliares.somar_total(valor_mes_nead, valor_mes, valor_mes_servicos, valor_mes_servicosFSI, soma_dic=True)
+            total_nead = Auxiliares.somar_total(valor_mes_nead)
+            total_geral = Auxiliares.somar_total(valor_mes_total)
+            total_servicoFSI = Auxiliares.somar_total(valor_mes_servicosFSI)
+            total_servico = Auxiliares.somar_total(valor_mes_servicos)
+            total = Auxiliares.somar_total(valor_mes)
 
-            for key in valor_mes_total:
-                if valor_mes_total[key] != 0:
-                    total_geral += valor_mes_total[key]
-                else:
-                    valor_mes_total[key] = '-'
+            media_servicoFSI = Auxiliares.valor_medio(valor_mes_servicosFSI)
+            media_servico = Auxiliares.valor_medio(valor_mes_servicos)
+            media = Auxiliares.valor_medio(valor_mes)
 
             total_unidades = 0
+            
             for item in Unidades.objects.all() :
-                uni.append(unidade(item.sede, item.qtd_user, item.qtd_user/total_user*100, (float)(total_geral - total_nead)*(item.qtd_user/total_user)))
+                uni.append(Unidade(item.sede, item.qtd_user, item.qtd_user/total_user*100, (float)(total_geral - total_nead)*(item.qtd_user/total_user)))
                 total_unidades += (float)(total_geral - total_nead)*(item.qtd_user/total_user)
 
-            return render(request, 'hosting/financeiro_senai.html', {'data': data, 'lista_anos': anos, 'valor_mes': valor_mes, 'media': round(media,2), 'previsao': round(media*12,2), 'total': round(total,2), 'mes_atual': mes_f, 'valor_mes_servicos': valor_mes_servicos, 'total_servico': round(total_servico,2), 'media_servico': round(media_servico,2), 'previsao_servico': round(media_servico*12,2), 'valor_mes_total': valor_mes_total, 'total_geral': round(total_geral,2), 'valor_mes_nead': valor_mes_nead, 'total_nead': round(total_nead,2), 'unidades': uni, 'total_user': round(total_user,2), 'total_unidades': round(total_unidades, 2), 'mes_i': mes_i, 'ambiente': request.POST['ambiente']})
-        else: 
-            mes_f = datetime.date(year = 2000, month= int(request.POST['mesF']), day = 1).strftime("%B")
-            mes_i = datetime.date(year = 2000, month= int(request.POST['mesI']), day = 1).strftime("%B")
-            valor_mes_fieb = {'jan': 0,'fev': 0,'mar': 0,'abr': 0,'maio': 0,'jun': 0,'jul': 0,'ago': 0,'set': 0,'out': 0,'nov': 0,'dez': 0}
-            valor_mes_sesi = {'jan': 0,'fev': 0,'mar': 0,'abr': 0,'maio': 0,'jun': 0,'jul': 0,'ago': 0,'set': 0,'out': 0,'nov': 0,'dez': 0}
-            valor_mes_iel = {'jan': 0,'fev': 0,'mar': 0,'abr': 0,'maio': 0,'jun': 0,'jul': 0,'ago': 0,'set': 0,'out': 0,'nov': 0,'dez': 0}
-
-            for item in Unidades.objects.all() :
-                total_user += item.qtd_user
-                
-            for item in Backup_dados.objects.filter(casa='SENAI'):
-                for ano in anos :
-                    if(item.data_insert is None):
-                            continue
-                    if ano == item.data_insert.year and item.data_delete == datetime.date(year = 2000, month= 1, day = 1) :
-                        if item.data_insert.month == 1 and 1 <= datetime.date.today().month and 1 >= int(request.POST['mesI']) and 1 <= int(request.POST['mesF']) :
-                            valor_mes_servicos['jan'] += item.valor
-                        if item.data_insert.month <= 2 and 2 <= datetime.date.today().month and 2 >= int(request.POST['mesI']) and 2 <= int(request.POST['mesF']):
-                            valor_mes_servicos['fev'] += item.valor
-                        if item.data_insert.month <= 3 and 3 <= datetime.date.today().month and 3 >= int(request.POST['mesI']) and 3 <= int(request.POST['mesF']):
-                            valor_mes_servicos['mar'] += item.valor
-                        if item.data_insert.month <= 4 and 4 <= datetime.date.today().month and 4 >= int(request.POST['mesI']) and 4 <= int(request.POST['mesF']):
-                            valor_mes_servicos['abr'] += item.valor
-                        if item.data_insert.month <= 5 and 5 <= datetime.date.today().month and 5 >= int(request.POST['mesI']) and 5 <= int(request.POST['mesF']):
-                            valor_mes_servicos['maio'] += item.valor
-                        if item.data_insert.month <= 6 and 6 <= datetime.date.today().month and 6 >= int(request.POST['mesI']) and 6 <= int(request.POST['mesF']):
-                            valor_mes_servicos['jun'] += item.valor
-                        if item.data_insert.month <= 7 and 7 <= datetime.date.today().month and 7 >= int(request.POST['mesI']) and 7 <= int(request.POST['mesF']):
-                            valor_mes_servicos['jul'] += item.valor
-                        if item.data_insert.month <= 8 and 8 <= datetime.date.today().month and 8 >= int(request.POST['mesI']) and 8 <= int(request.POST['mesF']):
-                            valor_mes_servicos['ago'] += item.valor
-                        if item.data_insert.month <= 9 and 9 <= datetime.date.today().month and 9 >= int(request.POST['mesI']) and 9 <= int(request.POST['mesF']):
-                            valor_mes_servicos['set'] += item.valor
-                        if item.data_insert.month <= 10 and 10 <= datetime.date.today().month and 10 >= int(request.POST['mesI']) and 10 <= int(request.POST['mesF']):
-                            valor_mes_servicos['out'] += item.valor
-                        if item.data_insert.month <= 11 and 11 <= datetime.date.today().month and 11 >= int(request.POST['mesI']) and 11 <= int(request.POST['mesF']):
-                            valor_mes_servicos['nov'] += item.valor
-                        if item.data_insert.month <= 12 and 12 <= datetime.date.today().month and 12 >= int(request.POST['mesI']) and 12 <= int(request.POST['mesF']):
-                            valor_mes_servicos['dez'] += item.valor
-
-            for item in Servicos_adicionais.objects.filter(casa='SENAI'):
-                for ano in anos :
-                    if(item.data_insert is None):
-                            continue
-                    if ano == item.data_insert.year and item.data_delete == datetime.date(year = 2000, month= 1, day = 1) :
-                        if item.data_insert.month == 1 and 1 <= datetime.date.today().month and 1 >= int(request.POST['mesI']) and 1 <= int(request.POST['mesF']):
-                            valor_mes_servicos['jan'] += item.valor
-                        if item.data_insert.month <= 2 and 2 <= datetime.date.today().month and 2 >= int(request.POST['mesI']) and 2 <= int(request.POST['mesF']):
-                            valor_mes_servicos['fev'] += item.valor
-                        if item.data_insert.month <= 3 and 3 <= datetime.date.today().month and 3 >= int(request.POST['mesI']) and 3 <= int(request.POST['mesF']):
-                            valor_mes_servicos['mar'] += item.valor
-                        if item.data_insert.month <= 4 and 4 <= datetime.date.today().month and 4 >= int(request.POST['mesI']) and 4 <= int(request.POST['mesF']):
-                            valor_mes_servicos['abr'] += item.valor
-                        if item.data_insert.month <= 5 and 5 <= datetime.date.today().month and 5 >= int(request.POST['mesI']) and 5 <= int(request.POST['mesF']):
-                            valor_mes_servicos['maio'] += item.valor
-                        if item.data_insert.month <= 6 and 6 <= datetime.date.today().month and 6 >= int(request.POST['mesI']) and 6 <= int(request.POST['mesF']):
-                            valor_mes_servicos['jun'] += item.valor
-                        if item.data_insert.month <= 7 and 7 <= datetime.date.today().month and 7 >= int(request.POST['mesI']) and 7 <= int(request.POST['mesF']):
-                            valor_mes_servicos['jul'] += item.valor
-                        if item.data_insert.month <= 8 and 8 <= datetime.date.today().month and 8 >= int(request.POST['mesI']) and 8 <= int(request.POST['mesF']):
-                            valor_mes_servicos['ago'] += item.valor
-                        if item.data_insert.month <= 9 and 9 <= datetime.date.today().month and 9 >= int(request.POST['mesI']) and 9 <= int(request.POST['mesF']):
-                            valor_mes_servicos['set'] += item.valor
-                        if item.data_insert.month <= 10 and 10 <= datetime.date.today().month and 10 >= int(request.POST['mesI']) and 10 <= int(request.POST['mesF']):
-                            valor_mes_servicos['out'] += item.valor
-                        if item.data_insert.month <= 11 and 11 <= datetime.date.today().month and 11 >= int(request.POST['mesI']) and 11 <= int(request.POST['mesF']):
-                            valor_mes_servicos['nov'] += item.valor
-                        if item.data_insert.month <= 12 and 12 <= datetime.date.today().month and 12 >= int(request.POST['mesI']) and 12 <= int(request.POST['mesF']):
-                            valor_mes_servicos['dez'] += item.valor
-
-            for item in Hosting.objects.filter(hosting_fieb='True'):
-                for ano in anos :
-                    if(item.data_insert is None):
-                            continue
-                    if ano == item.data_insert.year and item.data_delete == datetime.date(year = 2000, month= 1, day = 1) :
-                        if item.data_insert.month == 1 and 1 <= datetime.date.today().month and 1 >= int(request.POST['mesI']) and 1 <= int(request.POST['mesF']):
-                            if item.empresa == 'SENAI_GTI':
-                                valor_mes['jan'] += item.valor_total
-                            if item.empresa == 'FIEB':
-                                valor_mes_fieb['jan'] += item.valor_total
-                            if item.empresa == 'IEL':
-                                valor_mes_iel['jan'] += item.valor_total
-                            if item.empresa == 'SESI':
-                                valor_mes_sesi['jan'] += item.valor_total
-                        if item.data_insert.month <= 2 and 2 <= datetime.date.today().month and 2 >= int(request.POST['mesI']) and 2 <= int(request.POST['mesF']):
-                            if item.empresa == 'SENAI_GTI':
-                                valor_mes['fev'] += item.valor_total
-                            if item.empresa == 'FIEB':
-                                valor_mes_fieb['fev'] += item.valor_total
-                            if item.empresa == 'IEL':
-                                valor_mes_iel['fev'] += item.valor_total
-                            if item.empresa == 'SESI':
-                                valor_mes_sesi['fev'] += item.valor_total
-                        if item.data_insert.month <= 3 and 3 <= datetime.date.today().month and 3 >= int(request.POST['mesI']) and 3 <= int(request.POST['mesF']):
-                            if item.empresa == 'SENAI_GTI':
-                                valor_mes['mar'] += item.valor_total
-                            if item.empresa == 'FIEB':
-                                valor_mes_fieb['mar'] += item.valor_total
-                            if item.empresa == 'IEL':
-                                valor_mes_iel['mar'] += item.valor_total
-                            if item.empresa == 'SESI':
-                                valor_mes_sesi['mar'] += item.valor_total
-                        if item.data_insert.month <= 4 and 4 <= datetime.date.today().month and 4 >= int(request.POST['mesI']) and 4 <= int(request.POST['mesF']):
-                            if item.empresa == 'SENAI_GTI':
-                                valor_mes['abr'] += item.valor_total
-                            if item.empresa == 'FIEB':
-                                valor_mes_fieb['abr'] += item.valor_total
-                            if item.empresa_ieal == 'IEL':
-                                valor_mes['abr'] += item.valor_total
-                            if item.empresa == 'SESI':
-                                valor_mes_sesi['abr'] += item.valor_total
-                        if item.data_insert.month <= 5 and 5 <= datetime.date.today().month and 5 >= int(request.POST['mesI']) and 5 <= int(request.POST['mesF']):
-                            if item.empresa == 'SENAI_GTI':
-                                valor_mes['maio'] += item.valor_total
-                            if item.empresa == 'FIEB':
-                                valor_mes_fieb['maio'] += item.valor_total
-                            if item.empresa == 'IEL':
-                                valor_mes_iel['maio'] += item.valor_total
-                            if item.empresa == 'SESI':
-                                valor_mes_sesi['maio'] += item.valor_total
-                        if item.data_insert.month <= 6 and 6 <= datetime.date.today().month and 6 >= int(request.POST['mesI']) and 6 <= int(request.POST['mesF']):
-                            if item.empresa == 'SENAI_GTI':
-                                valor_mes['jun'] += item.valor_total
-                            if item.empresa == 'FIEB':
-                                valor_mes_fieb['jun'] += item.valor_total
-                            if item.empresa == 'IEL':
-                                valor_mes_iel['jun'] += item.valor_total
-                            if item.empresa == 'SESI':
-                                valor_mes_sesi['jun'] += item.valor_total
-                        if item.data_insert.month <= 7 and 7 <= datetime.date.today().month and 7 >= int(request.POST['mesI']) and 7 <= int(request.POST['mesF']):
-                            if item.empresa == 'SENAI_GTI':
-                                valor_mes['jul'] += item.valor_total
-                            if item.empresa == 'FIEB':
-                                valor_mes_fieb['jul'] += item.valor_total
-                            if item.empresa == 'IEL':
-                                valor_mes_iel['jul'] += item.valor_total
-                            if item.empresa == 'SESI':
-                                valor_mes_sesi['jul'] += item.valor_total
-                        if item.data_insert.month <= 8 and 8 <= datetime.date.today().month and 8 >= int(request.POST['mesI']) and 8 <= int(request.POST['mesF']):
-                            if item.empresa == 'SENAI_GTI':
-                                valor_mes['ago'] += item.valor_total
-                            if item.empresa == 'FIEB':
-                                valor_mes_fieb['ago'] += item.valor_total
-                            if item.empresa == 'IEL':
-                                valor_mes_iel['ago'] += item.valor_total
-                            if item.empresa == 'SESI':
-                                valor_mes_sesi['ago'] += item.valor_total
-                        if item.data_insert.month <= 9 and 9 <= datetime.date.today().month and 9 >= int(request.POST['mesI']) and 9 <= int(request.POST['mesF']):
-                            if item.empresa == 'SENAI_GTI':
-                                valor_mes['set'] += item.valor_total
-                            if item.empresa == 'FIEB':
-                                valor_mes_fieb['set'] += item.valor_total
-                            if item.empresa == 'IEL':
-                                valor_mes_iel['set'] += item.valor_total
-                            if item.empresa == 'SESI':
-                                valor_mes_sesi['set'] += item.valor_total
-                        if item.data_insert.month <= 10 and 10 <= datetime.date.today().month and 10 >= int(request.POST['mesI']) and 10 <= int(request.POST['mesF']):
-                            if item.empresa == 'SENAI_GTI':
-                                valor_mes['out'] += item.valor_total
-                            if item.empresa == 'FIEB':
-                                valor_mes_fieb['out'] += item.valor_total
-                            if item.empresa == 'IEL':
-                                valor_mes_iel['out'] += item.valor_total
-                            if item.empresa == 'SESI':
-                                valor_mes_sesi['out'] += item.valor_total
-                        if item.data_insert.month <= 11 and 11 <= datetime.date.today().month and 11 >= int(request.POST['mesI']) and 11 <= int(request.POST['mesF']):
-                            if item.empresa == 'SENAI_GTI':
-                                valor_mes['nov'] += item.valor_total
-                            if item.empresa == 'FIEB':
-                                valor_mes_fieb['nov'] += item.valor_total
-                            if item.empresa == 'IEL':
-                                valor_mes_iel['nov'] += item.valor_total
-                            if item.empresa == 'SESI':
-                                valor_mes_sesi['nov'] += item.valor_total
-                        if item.data_insert.month <= 12 and 12 <= datetime.date.today().month and 12 >= int(request.POST['mesI']) and 12 <= int(request.POST['mesF']):
-                            if item.empresa == 'SENAI_GTI':
-                                valor_mes['dez'] += item.valor_total
-                            if item.empresa == 'FIEB':
-                                valor_mes_fieb['dez'] += item.valor_total
-                            if item.empresa == 'IEL':
-                                valor_mes_iel['dez'] += item.valor_total
-                            if item.empresa == 'SESI':
-                                valor_mes_sesi['dez'] += item.valor_total
-        
-            count = 0
-            total = total_iel = total_sesi = total_fieb = 0
-            media = 0
-            total_servico = 0
-            media_servico = 0
-            total_geral = 0
-
-            for key in valor_mes_servicos:
-                if valor_mes_servicos[key] != 0:
-                    valor_mes_total[key] += valor_mes_servicos[key]
-                    count += 1
-                    total_servico += valor_mes_servicos[key]
-                else:
-                    valor_mes_servicos[key] = '-'
-
-            if count != 0 :      
-                media_servico = total_servico/count
-            else :
-                media_servico = total_servico
-
-            count = 0
-
-            for key in valor_mes:
-                if valor_mes[key] != 0:
-                    valor_mes_total[key] += valor_mes[key]
-                    count += 1
-                    total += valor_mes[key]
-                else:
-                    valor_mes[key] = '-'
-            
-            if count != 0 : 
-                media = total/count
-            else :
-                media = total
-            
-            count = 0
-            
-            for key in valor_mes_fieb:
-                if valor_mes_fieb[key] != 0:
-                    valor_mes_total[key] += valor_mes_fieb[key]
-                    count += 1
-                    total_fieb += valor_mes_fieb[key]
-                else:
-                    valor_mes_fieb[key] = '-'
-            
-            if count != 0 : 
-                media_fieb = total_fieb/count
-            else :
-                media_fieb = total_fieb
-
-            count = 0
-            
-            for key in valor_mes_sesi:
-                if valor_mes_sesi[key] != 0:
-                    valor_mes_total[key] += valor_mes_sesi[key]
-                    count += 1
-                    total_sesi += valor_mes_sesi[key]
-                else:
-                    valor_mes_sesi[key] = '-'
-            
-            if count != 0 : 
-                media_sesi = total_sesi/count
-            else :
-                media_sesi = total_sesi
-
-            count = 0
-            
-            for key in valor_mes_iel:
-                if valor_mes_iel[key] != 0:
-                    valor_mes_total[key] += valor_mes_iel[key]
-                    count += 1
-                    total_iel += valor_mes_iel[key]
-                else:
-                    valor_mes_iel[key] = '-'
-            
-            if count != 0 : 
-                media_iel = total_iel/count
-            else :
-                media_iel = total_iel
-
-            for key in valor_mes_total:
-                if valor_mes_total[key] != 0:
-                    total_geral += valor_mes_total[key]
-                else:
-                    valor_mes_total[key] = '-'
-
-            return render(request, 'hosting/financeiro_senai.html', {'data': data, 'lista_anos': anos, 'valor_mes': valor_mes, 'media': round(media,2), 'previsao': round(media*12,2), 'total': round(total,2), 'mes_atual': mes_f, 'valor_mes_servicos': valor_mes_servicos, 'total_servico': round(total_servico,2), 'media_servico': round(media_servico,2), 'previsao_servico': round(media_servico*12,2), 'valor_mes_total': valor_mes_total, 'total_geral': round(total_geral,2), 'mes_i': mes_i, 'ambiente': request.POST['ambiente'], 'valor_fieb': valor_mes_fieb, 'media_fieb': media_fieb, 'previsao_fieb': round(media_fieb*12,2), 'total_fieb': round(total_fieb,2), 'media_sesi': media_sesi, 'previsao_sesi': round(media_sesi*12,2), 'total_sesi': round(total_sesi,2), 'media_iel': media_iel, 'previsao_iel': round(media_iel*12,2), 'total_iel': round(total_iel,2), 'valor_sesi': valor_mes_sesi, 'valor_iel': valor_mes_iel})
-
-def get_years():
-    anos = []
-    for item in Hosting.objects.all():
-            if anos.__len__() == 0:
-                if(item.data_insert is None):
-                    continue
-                anos.append(item.data_insert.year)
-            if(anos.count(item.data_insert.year) == 0) :
-                anos.append(item.data_insert.year)
-    
-    return anos
-
-def ordenar(hosting):
-    return hosting.valor_total
+            return render(request, 'hosting/financeiro_senai.html', {'data': data, 'lista_anos': anos, 'valor_mes': valor_mes, 'media': round(media,2), 'previsao': round(media*12,2), 'total': round(total,2), 'mes_atual': data_inteira.strftime('%B'), 'valor_mes_servicos': valor_mes_servicos, 'total_servico': round(total_servico,2), 'media_servico': round(media_servico,2), 'previsao_servico': round(media_servico*12,2), 'valor_mes_total': valor_mes_total, 'total_geral': round(total_geral,2), 'valor_mes_nead': valor_mes_nead, 'total_nead': round(total_nead,2), 'unidades': uni, 'total_user': round(total_user,2), 'total_unidades': round(total_unidades, 2), 'mes_i': 'January', 'ambiente': 'senai', 'valor_mes_servicosFSI': valor_mes_servicosFSI, 'media_servicoFSI': media_servicoFSI, 'total_servicoFSI': total_servicoFSI, 'previsao_servicoFSI': round(media_servicoFSI*12,2)})
 
 class HostingList(ListView):
+    """
+        Classe que herda de ListView para implementar seus métodos no genrenciamento da página de exibição de hostings do ambiente SENAI.
+        Utilizado para dizer o model (atributos que estão no banco) que será utilizado para ser exibido na página.
+    """
     model = Hosting
 
     def get_context_data(self, **kwargs):
-        # Call the base implementation first to get a context
+        """
+            Método que é executado quando a página é chamada.
+        """
         context = super(HostingList, self).get_context_data(**kwargs)
-        # Add in a QuerySet of all the 
+ 
         hosting_list = []
+        hosting_search = []
         date = datetime.date(year = 2000, month= 1, day = 1)
         context['mes'] = datetime.date.today().strftime("%B - %Y")
+        context['mes_selecionado'] = datetime.date.today().strftime('%B - %Y')
+        context['mes_atual'] = datetime.date.today().strftime('%B - %Y')
+        
+        if datetime.date.today().month != 1 and datetime.date.today().month != 2:
+            context['mes_anterior'] = datetime.date(year = datetime.date.today().year, month= datetime.date.today().month - 1, day = datetime.date.today().day).strftime('%B - %Y')
+            context['mes_anterior2'] = datetime.date(year = datetime.date.today().year, month= datetime.date.today().month - 2, day = datetime.date.today().day).strftime('%B - %Y')
+
+        elif datetime.date.today().month == 1:
+            context['mes_anterior'] = datetime.date(year = datetime.date.today().year - 1, month= 12 , day = datetime.date.today().day).strftime('%B - %Y')
+            context['mes_anterior2'] = datetime.date(year = datetime.date.today().year - 1, month= 11 - 2, day = datetime.date.today().day).strftime('%B - %Y')
+
+        else:
+            context['mes_anterior'] = datetime.date(year = datetime.date.today().year, month= datetime.date.today().month - 1, day = datetime.date.today().day).strftime('%B - %Y')
+            context['mes_anterior2'] = datetime.date(year = datetime.date.today().year, month= 12, day = datetime.date.today().day).strftime('%B - %Y')
+        
         total= 0
         list_dic = []
-        total_empresa = 0
-        todas_empresas = []
 
-        if 'ordem' in self.request.GET :
-            context['ordena'] = self.request.GET['ordem']
+        if 'meses' in self.request.GET :
+            hosting_search = list(Hosting.objects.filter(hosting_senai=True))
+            context['mes_selecionado'] = self.request.GET['meses']
+            mes = self.request.GET['meses'].split('-')
+            hosting_list = Auxiliares.search(mes[0].strip(), mes[1].strip(), hosting_search)
+            context['hosting_list'] = hosting_list 
+        else:
+            hosting_list = list(Hosting.objects.filter(hosting_senai=True, data_delete=date))        
+        
         if 'search' in self.request.GET and self.request.GET['search'] != '' :
-            for item in Hosting.objects.all():
-                if item.hosting_senai & (item.data_delete==date) and (self.request.GET['search'].upper() in item.empresa or self.request.GET['search'].upper() in item.server or self.request.GET['search'] in item.descricao or self.request.GET['search'].capitalize() in item.descricao or self.request.GET['search'].upper() in item.descricao or self.request.GET['search'].capitalize() in item.descricao.capitalize()):
-                    hosting_list.append(item)
+            for item in hosting_list:
+                if self.request.GET['search'].upper() in item.empresa or self.request.GET['search'].upper() in item.server or self.request.GET['search'] in item.descricao or self.request.GET['search'].capitalize() in item.descricao or self.request.GET['search'].upper() in item.descricao or self.request.GET['search'].capitalize() in item.descricao.capitalize():
+                    hosting_search.append(item)
 
             if 'ordem' in self.request.GET :
-                if context['ordena'] == 'crescente' :
-                    hosting_list.sort(key=ordenar)
-                elif context['ordena'] == 'decrescente' :
-                    hosting_list.sort(reverse=True, key=ordenar)
-                else:
-                    pass
+                context['ordena'] = self.request.GET['ordem']
+                hosting_search = Auxiliares.ordenar(context['ordena'], hosting_search)        
 
-            context['hosting_list'] = hosting_list
+            context['hosting_list'] = hosting_search
             for item in context['hosting_list'] :
                 total += item.valor_total
 
             context['total'] = total
             context['pesquisa'] = self.request.GET['search']
-        else: 
-            for item in Hosting.objects.all():
-                if item.hosting_senai & (item.data_delete==date):
-                    hosting_list.append(item)
-
+        else:
             if 'ordem' in self.request.GET :
-                if context['ordena'] == 'drescente' :
-                    hosting_list.sort(key=ordenar)
-                elif context['ordena'] == 'decrescente' :
-                    hosting_list.sort(reverse=True,key=ordenar)
-                else:
-                    pass
-
-            context['hosting_list'] = hosting_list
-
-            for item in context['hosting_list']:
-                todas_empresas.append(item.empresa)
-
-            for i in empresas(todas_empresas) :
-                dic = {}
-                dic['empresa'] = i
-                total_empresa = 0
-                for item in context['hosting_list'] :
-                    if(i == item.empresa) :
-                        total_empresa = item.valor_total + total_empresa
-                dic['valor'] = total_empresa
-                list_dic.append(dic)
+                context['ordena'] = self.request.GET['ordem']
+                hosting_search = Auxiliares.ordenar(context['ordena'], hosting_search) 
+                context['hosting_list'] = hosting_search   
+            else:
+                context['hosting_list'] = hosting_list
+            list_dic = Auxiliares.empresas(hosting_list)
 
             for item in context['hosting_list'] :
                 total = item.valor_total + total
@@ -852,188 +314,87 @@ class HostingList(ListView):
             context['totalAno'] = total*12
             context['total_empresa'] = list_dic
             context['tabela'] = 'SENAI'
+            
         return context
 
 class HostingCreate(CreateView):
+    """
+        Classe que herda de CreateView para implementar seus métodos no genrenciamento da página de criação de hosting.
+        Utilizado para dizer o model (atributos  que serão inseridos no banco) que será utilizado, informar os campos - fields - que deverão ser exibidos no formulário de inserção, página que deve ser direcionada após a inserção bem sucedida e outros campos.
+    """
     model = Hosting
     fields = ['empresa', 'server','descricao', 'cpu', 'memoria', 'disco', 'linux']
     success_url = reverse_lazy('hosting_list')
 
     def get_context_data(self, **kwargs):
-    # Call the base implementation first to get a context
+        """
+            Método que é executado quando a página é chamada.
+            Pode ser utilizado para passa variáveis.
+        """
         context = super(HostingCreate, self).get_context_data(**kwargs)
         context['titulo'] = 'Novo hosting'
         context['maq'] = 'Virtual'
         return context
 
     def form_valid(self, form):
-        if(self.request.POST['ambiente'] == 'fieb'):
+        """
+            Método que é executado ao submeter as informções para adição.
+            Pode ser utilizado para verificar as informções e fazer alterações antes da inserção no banco.
+        """
+        if self.request.POST['ambiente'] == 'fieb' :
             form.instance.hosting_fieb = True
             self.success_url = reverse_lazy('hosting_fieb')
-        if(self.request.POST['ambiente'] == 'senai'):
+        elif self.request.POST['ambiente'] == 'senai' :
             form.instance.hosting_senai = True
+        else:
+            pass
+    
         if 'linux' in self.request.POST:
                     if self.request.POST['linux'] == 'on' :
                         form.instance.islinux = True
         else :
             form.instance.islinux = False
+        
         form.instance.tipo_maq = self.request.POST['maquina']
         form.instance.data_insert = datetime.date.today()
         form.instance.data_delete = datetime.date(year = 2000, month= 1, day = 1)
         form.instance.empresa = form.instance.empresa.upper()
         form.instance.tipo_maq = form.instance.tipo_maq.capitalize()
-        form.instance.tipo = tipo(form.instance.cpu, form.instance.memoria, form.instance.linux)
-        form.instance.recurso = recurso(form.instance.tipo)
-        form.instance.perfil = self.request.POST['perfilTeste'].upper()
-        form.instance.valor_tabela = valorTabela(form.instance.tipo_maq, form.instance.perfil, form.instance.recurso)
-        form.instance.memoria_adicional = mem_adicional(form.instance.tipo, form.instance.memoria, form.instance.linux)
-        form.instance.proc_adicional = cpu_adicional(form.instance.tipo, form.instance.cpu, form.instance.linux)
-        form.instance.disco_adicional = disc_adicional(form.instance.disco, form.instance.islinux, form.instance.tipo)
+        form.instance.tipo = Auxiliares.tipo(form.instance.cpu, form.instance.memoria, form.instance.linux)
+        form.instance.recurso = Auxiliares.recurso(form.instance.tipo)
+        form.instance.perfil = self.request.POST['perfil'].upper()
+        form.instance.valor_tabela = Auxiliares.valor_tabela(form.instance.tipo_maq, form.instance.perfil, form.instance.recurso)
+        form.instance.memoria_adicional = Auxiliares.mem_adicional(form.instance.tipo, form.instance.memoria, form.instance.linux)
+        form.instance.proc_adicional = Auxiliares.cpu_adicional(form.instance.tipo, form.instance.cpu, form.instance.linux)
+        form.instance.disco_adicional = Auxiliares.disc_adicional(form.instance.disco, form.instance.islinux, form.instance.tipo)
         form.instance.server = form.instance.server.upper()
 
-        if(form.instance.disco_adicional > 0):
-            if form.instance.perfil == 'PLATINUM' :
-                form.instance.valor_disco_adicional = round(form.instance.disco_adicional * 1.056, 2)
-            else:
-                form.instance.valor_disco_adicional = round(form.instance.disco_adicional * 0.704, 2)
-        else:
-            form.instance.valor_disco_adicional = 0
-        if(form.instance.memoria_adicional > 0):
-            form.instance.valor_memoria_adicional =  round(form.instance.memoria_adicional * 54.904, 2)
-        else:
-            form.instance.valor_memoria_adicional = 0
-        if(form.instance.proc_adicional > 0):
-            if form.instance.perfil == 'PLATINUM' :
-                form.instance.valor_proc_adicional =  round(form.instance.proc_adicional * 80.2675, 2)
-            else:
-                form.instance.valor_proc_adicional =  round(form.instance.proc_adicional * 53.512, 2)
-        else:
-            form.instance.valor_proc_adicional = 0
+        form.instance.valor_disco_adicional = Auxiliares.valor_disco_adicional(form.instance.disco_adicional, form.instance.perfil)
+        form.instance.valor_memoria_adicional = Auxiliares.valor_mem_adicional(form.instance.memoria_adicional)
+        form.instance.valor_proc_adicional = Auxiliares.valor_proc_adicional(form.instance.proc_adicional, form.instance.perfil)
 
         form.instance.valor_total = form.instance.valor_tabela+form.instance.valor_disco_adicional+form.instance.valor_memoria_adicional+form.instance.valor_proc_adicional
         return super(HostingCreate, self).form_valid(form)
 
-def disc_adicional(disco, islinux, tipo):
-    if islinux :
-        if tipo == 3 :
-            return disco - 250
-        elif tipo == 2 :
-            return disco - 100
-        else :
-            return disco - 50
-    else:
-        return disco - 80
-
-def mem_adicional(tipo, mem, islinux):
-
-    if islinux :
-        if tipo == 2 :
-            return mem - 4
-        elif tipo == 3 :
-            return mem - 10
-        else :
-            return mem - 2
-    else :
-        if(tipo == 2):
-            return mem - 8
-        elif(tipo == 3):
-            return mem - 16
-        else:
-            return mem - 4
-
-def cpu_adicional(tipo, cpu, islinux):
-    if islinux :
-        if tipo == 2 :
-            return cpu - 2
-        elif tipo == 3 :
-            return cpu - 4
-        else :
-            return cpu - 1
-    else :
-        if(tipo == 2):
-            return cpu - 4
-        if(tipo == 3):
-            return cpu - 8
-        else:
-            return cpu - 2
-
-def recurso(tipo):
-    if(tipo == 1):
-        return 'BÁSICO'
-    if(tipo == 2):
-        return 'INTERMEDIÁRIO'
-    else:
-        return 'AVANÇADO'
-
-def valorTabela(maq, perfil, recurso):
-    if(perfil == 'GOLD'):
-        if(recurso == 'BÁSICO'):
-            return 365.62
-        if(recurso == 'INTERMEDIÁRIO'):
-            return 581.08
-        if(recurso == 'AVANÇADO'):
-            if(maq == 'Fisico'):
-                return 2816.55
-            else:
-                return 1022.02
-    if(perfil == 'PLATINUM'):
-        if(recurso == 'BÁSICO'):
-            return 548.43
-        if(recurso == 'INTERMEDIÁRIO'):
-            return 871.62
-        if(recurso == 'AVANÇADO'):
-            return 1533.04
-
-def tipo(cpu, mem, islinux):
-    tipo_cpu = 1
-    tipo_mem = 1
-    if islinux :
-        if cpu >= 4 :
-            tipo_cpu = 3
-        elif cpu == 2 :
-            tipo_cpu = 2
-        else :
-            tipo_cpu = 1
-        
-        if mem >= 10 :
-            tipo_mem = 3
-        elif mem >=4 :
-            tipo_mem = 2
-        else :
-            tipo_mem = 1
-
-    else :
-        if(cpu > 6):
-            tipo_cpu = 3
-        elif(cpu<=3):
-            tipo_cpu = 1
-        else:
-            tipo_cpu = 2
-
-        if(mem > 12):
-            tipo_mem = 3
-        elif(mem <= 6):
-            tipo_mem = 1
-        else:
-            tipo_mem = 2
-    
-    if(tipo_cpu > tipo_mem):
-        return tipo_cpu
-    else:
-        return tipo_mem
-
 class HostingUpdate(UpdateView):
+    """
+        Classe que herda de CreateView para implementar seus métodos no genrenciamento da página de criação de hosting.
+        Utilizado para dizer o model (atributos  que serão inseridos no banco) que será utilizado, informar os campos - fields - que deverão ser exibidos no formulário de atualização, página que deve ser direcionada após a inserção bem sucedida e outros campos.
+    """
     model = Hosting
     fields = ['empresa', 'server','descricao', 'cpu', 'memoria', 'disco', 'linux']
     success_url = reverse_lazy('hosting_list')
     
     def get_context_data(self, **kwargs):
-    # Call the base implementation first to get a context
+        """
+            Método que é executado ao carregar a página de atualização.
+            Pode ser utilizado para passar informações do item que será alterado.
+        """
         context = super(HostingUpdate, self).get_context_data(**kwargs)
         path = context['view'].request.path
         id = path.split('/')
         item = Hosting.objects.get(id = id[2])
-        context['titulo'] = 'Edit'
+        context['titulo'] = 'Editar hosting'
         if(item.hosting_fieb) :
             context['ambiente'] = 'fieb'
         else :
@@ -1043,6 +404,10 @@ class HostingUpdate(UpdateView):
         return context
 
     def form_valid(self, form):
+        """
+            Método que é executado ao submeter as informções para adição.
+            Pode ser utilizado para verificar as informções e fazer alterações antes da inserção no banco.
+        """
         if(self.request.POST['ambiente'] == 'fieb'):
             form.instance.hosting_fieb = True
         if(self.request.POST['ambiente'] == 'senai'):
@@ -1052,38 +417,26 @@ class HostingUpdate(UpdateView):
         form.instance.data_delete = datetime.date(year = 2000, month= 1, day = 1)
         form.instance.empresa = form.instance.empresa.upper()
         form.instance.tipo_maq = form.instance.tipo_maq.capitalize()
-        form.instance.tipo = tipo(form.instance.cpu, form.instance.memoria, form.instance.linux)
-        form.instance.recurso = recurso(form.instance.tipo)
-        form.instance.perfil = self.request.POST['perfilTeste'].upper()
-        form.instance.valor_tabela = valorTabela(form.instance.tipo_maq, form.instance.perfil, form.instance.recurso)
-        form.instance.memoria_adicional = mem_adicional(form.instance.tipo, form.instance.memoria, form.instance.linux)
-        form.instance.proc_adicional = cpu_adicional(form.instance.tipo, form.instance.cpu, form.instance.linux)
-        form.instance.disco_adicional = disc_adicional(form.instance.disco, form.instance.islinux, form.instance.tipo)
+        form.instance.tipo = Auxiliares.tipo(form.instance.cpu, form.instance.memoria, form.instance.linux)
+        form.instance.recurso = Auxiliares.recurso(form.instance.tipo)
+        form.instance.perfil = self.request.POST['perfil'].upper()
+        form.instance.valor_tabela = Auxiliares.valor_tabela(form.instance.tipo_maq, form.instance.perfil, form.instance.recurso)
+        form.instance.memoria_adicional = Auxiliares.mem_adicional(form.instance.tipo, form.instance.memoria, form.instance.linux)
+        form.instance.proc_adicional = Auxiliares.cpu_adicional(form.instance.tipo, form.instance.cpu, form.instance.linux)
+        form.instance.disco_adicional = Auxiliares.disc_adicional(form.instance.disco, form.instance.islinux, form.instance.tipo)
         
-        if(form.instance.disco_adicional > 0):
-            if form.instance.perfil == 'PLATINUM' :
-                form.instance.valor_disco_adicional = round(form.instance.disco_adicional * 1.056, 2)
-            else:
-                form.instance.valor_disco_adicional = round(form.instance.disco_adicional * 0.704, 2)
-        else:
-            form.instance.valor_disco_adicional = 0
-        if(form.instance.memoria_adicional > 0):
-            form.instance.valor_memoria_adicional =  round(form.instance.memoria_adicional * 54.904, 2)
-        else:
-            form.instance.valor_memoria_adicional = 0
-        if(form.instance.proc_adicional > 0):
-            if form.instance.perfil == 'PLATINUM' :
-                form.instance.valor_proc_adicional =  round(form.instance.proc_adicional * 80.2675, 2)
-            else:
-                form.instance.valor_proc_adicional =  round(form.instance.proc_adicional * 53.512, 2)
-        else:
-            form.instance.valor_proc_adicional = 0
+        form.instance.valor_disco_adicional = Auxiliares.valor_disco_adicional(form.instance.disco_adicional, form.instance.perfil)
+        form.instance.valor_memoria_adicional = Auxiliares.valor_mem_adicional(form.instance.memoria_adicional)
+        form.instance.valor_proc_adicional = Auxiliares.valor_proc_adicional(form.instance.proc_adicional, form.instance.perfil)
 
         form.instance.valor_total = form.instance.valor_tabela+form.instance.valor_disco_adicional+form.instance.valor_memoria_adicional+form.instance.valor_proc_adicional
         return super(HostingUpdate, self).form_valid(form)
 
     def post(self, request, *args, **kwargs): 
-        
+        """
+            Método invocado quando é submetido o formulário para edição do hosting.
+            O item não será excluido do banco, o campo data_delete receberá a data do dia e será criado um novo item com os novos valores.
+        """
         path = self.request.path
         id = path.split('/')
         item = Hosting.objects.get(id = id[2])
@@ -1118,7 +471,6 @@ class HostingUpdate(UpdateView):
                 else:
                     new_item.valor_memoria_adicional = 0
                 if(new_item.proc_adicional > 0):
-                    print(new_item.recurso)
                     if new_item.perfil == 'PLATINUM' :
                         new_item.valor_proc_adicional =  round(new_item.proc_adicional * 80.2675, 2)
                     else:
@@ -1131,7 +483,6 @@ class HostingUpdate(UpdateView):
                 item.save()
                 return HttpResponseRedirect(reverse_lazy('hosting_fieb'))
             else :
-                print(self.request.POST['maquina'])
                 item.data_delete = datetime.date.today()
                 new_item = Hosting(empresa=self.request.POST['empresa'], server=self.request.POST['server'], descricao=self.request.POST['descricao'], cpu=self.request.POST['cpu'], memoria=self.request.POST['memoria'], disco=self.request.POST['disco'], tipo_maq=self.request.POST['maquina'].capitalize(), perfil=self.request.POST['perfilTeste'])
                 new_item.hosting_senai = True
@@ -1256,10 +607,18 @@ class HostingUpdate(UpdateView):
                 return HttpResponseRedirect(self.success_url)
         
 class HostingDelete(DeleteView):
+    """
+        Classe que herda de DeleteView para implementar seus métodos no genrenciamento da página exclusão de hosting.
+        Utilizado para dizer o model (atributos  que serão excluidos no banco) que será utilizado, página que deve ser direcionada após a exclusõ bem sucedida e outros campos.
+    """
     model = Hosting
     success_url = reverse_lazy('hosting_list')
     
     def post(self, request, *args, **kwargs): 
+        """
+            Método invocado quando é submetido o formulário para exclusão do hosting.
+            O item não será excluido do banco, o campo data_delete receberá a data do dia.
+        """
         if self.request.POST.get("confirm_delete"):
             # when confirmation page has been displayed and confirm button pressed
             path = self.request.path
@@ -1276,50 +635,103 @@ class HostingDelete(DeleteView):
             return self.get(self, *args, **kwargs)
 
 class Sevicos_adicionaisCreate (CreateView):
+    """
+        Classe que herda de CreateView para implementar seus métodos no genrenciamento da página de criação de servições adicionais.
+        Utilizado para dizer o model (atributos  que serão inseridos no banco) que será utilizado, informar os campos - fields - que deverão ser exibidos no formulário de inserção, página que deve ser direcionada após a inserção bem sucedida e outros campos.
+    """
     model = Servicos_adicionais
     fields = ['descricao', 'ticket','duracao', 'observacao', 'responsavel', 'valor']
     success_url = reverse_lazy('servicos')
     
     def get_context_data(self, **kwargs):
-    # Call the base implementation first to get a context
+        """
+            Método que é executado quando a página é chamada.
+            Pode ser utilizado para passa variáveis.
+        """
         context = super(Sevicos_adicionaisCreate, self).get_context_data(**kwargs)
-        context['titulo'] = 'Novo Serviço'
+        context['titulo'] = 'Novo serviço'
         context['home'] = 'senai'
+        context['ambiente'] = 'senai'
         return context
 
     def form_valid(self, form):
-        form.instance.casa = form.instance.casa.upper()
+        """
+            Método que é executado ao submeter as informções para adição.
+            Pode ser utilizado para verificar as informções e fazer alterações antes da inserção no banco.
+        """
+        form.instance.casa = str(self.request.POST['casa']).upper()
+        form.instance.ambiente = self.request.POST['ambiente']
         form.instance.data_insert = datetime.date.today()
         form.instance.data_delete = datetime.date(year = 2000, month= 1, day = 1)
 
         return super(Sevicos_adicionaisCreate, self).form_valid(form)
 
 class Servicos_adicionaisUpdate(UpdateView):
+    """
+        Classe que herda de UpdateView para implementar seus métodos no genrenciamento da página de edição de servições adicionais.
+        Utilizado para dizer o model (atributos  que serão inseridos no banco) que será utilizado, informar os campos - fields - que deverão ser exibidos no formulário de atualização, página que deve ser direcionada após a inserção bem sucedida e outros campos.
+    """
     model = Servicos_adicionais
-    fields = ['casa', 'descricao', 'ticket','duracao', 'observacao', 'responsavel', 'valor']
+    fields = ['descricao', 'ticket','duracao', 'observacao', 'responsavel', 'valor']
     success_url = reverse_lazy('servicos')
+    
+    def get_context_data(self, **kwargs):
+        """
+            Método que é executado ao carregar a página de atualização.
+            Pode ser utilizado para passar informações do item que será alterado.
+        """
+        context = super(Servicos_adicionaisUpdate, self).get_context_data(**kwargs)
+        path = context['view'].request.path
+        id = path.split('/')
+        item = Servicos_adicionais.objects.get(id = id[3])
+        context['home'] = item.casa
+        context['titulo'] = 'Editar Serviço'
+        context['ambiente'] = item.ambiente
+        return context
+    
     def form_valid(self, form):
+        """
+            Método que é executado ao submeter as informções para atualização.
+            Pode ser utilizado para verificar as informções e fazer alterações antes da inserção no banco.
+        """
         form.instance.casa = form.instance.casa.upper()
         return super(Servicos_adicionaisUpdate, self).form_valid(form)
 
 class Servicos_adicionaisDelete(DeleteView):
+    """
+        Classe que herda de DeleteView para implementar seus métodos no genrenciamento da página de exclusão de servições adicionais.
+        Utilizado para dizer o model (atributos  que serão inseridos no banco) que será utilizado, página que deve ser direcionada após a inserção bem sucedida e outros campos.
+    """
     model = Servicos_adicionais
-    success_url = reverse_lazy('hosting_list')
+    success_url = reverse_lazy('servicos')
 
 class Backup_dadosCreate(CreateView):
+    """
+        Classe que herda de CreateView para implementar seus métodos no genrenciamento da página de criação de backups.
+        Utilizado para dizer o model (atributos  que serão inseridos no banco) que será utilizado, informar os campos - fields - que deverão ser exibidos no formulário de inserção, página que deve ser direcionada após a inserção bem sucedida e outros campos.
+    """
     model = Backup_dados
     fields = ['descricao', 'valorUnitario','volume', 'quantidade']
     success_url = reverse_lazy('servicos')
 
     def get_context_data(self, **kwargs):
-    # Call the base implementation first to get a context
+        """
+            Método que é executado quando a página é chamada.
+            Pode ser utilizado para passa variáveis.
+        """
         context = super(Backup_dadosCreate, self).get_context_data(**kwargs)
-        context['titulo'] = 'Novo Backup'
+        context['titulo'] = 'Novo backup'
         context['home'] = 'senai'
+        context['ambiente'] = 'senai'
         return context
 
     def form_valid(self, form):
-        form.instance.casa = form.instance.casa.upper()
+        """
+            Método que é executado ao submeter as informções para adição.
+            Pode ser utilizado para verificar as informções e fazer alterações antes da inserção no banco.
+        """
+        form.instance.casa = str(self.request.POST['casa']).upper()
+        form.instance.ambiente = self.request.POST['ambiente']
         if(form.instance.quantidade == 0):
             form.instance.valor = form.instance.valorUnitario * form.instance.volume
         if(form.instance.volume == 0):
@@ -1330,11 +742,35 @@ class Backup_dadosCreate(CreateView):
         return super(Backup_dadosCreate, self).form_valid(form)
 
 class Backup_dadosUpdate(UpdateView):
+    """
+        Classe que herda de UpdateView para implementar seus métodos no genrenciamento da página de edição de backups.
+        Utilizado para dizer o model (atributos  que serão inseridos no banco) que será utilizado, informar os campos - fields - que deverão ser exibidos no formulário de atualização, página que deve ser direcionada após a inserção bem sucedida e outros campos.
+    """
     model = Backup_dados
-    fields = ['casa', 'descricao', 'valorUnitario','volume', 'quantidade']
+    fields = ['descricao', 'valorUnitario','volume', 'quantidade']
     success_url = reverse_lazy('servicos')
+
+    def get_context_data(self, **kwargs):
+        """
+            Método que é executado ao carregar a página de atualização.
+            Pode ser utilizado para passar informações do item que será alterado.
+        """
+        context = super(Backup_dadosUpdate, self).get_context_data(**kwargs)
+        path = context['view'].request.path
+        id = path.split('/')
+        item = Backup_dados.objects.get(id = id[3])
+        context['home'] = str(item.casa).lower()
+        context['titulo'] = 'Editar Serviço'
+        context['ambiente'] = item.ambiente
+        return context
+
     def form_valid(self, form):
-        form.instance.casa = form.instance.casa.upper()
+        """
+            Método que é executado ao submeter as informções para atualização.
+            Pode ser utilizado para verificar as informções e fazer alterações antes da inserção no banco.
+        """
+        form.instance.casa = str(self.request.POST['casa']).upper()
+        form.instance.ambiente = self.request.POST['ambiente']
         if(form.instance.quantidade == 0):
             form.instance.valor = form.instance.valorUnitario * form.instance.volume
         if(form.instance.volume == 0):
@@ -1342,10 +778,18 @@ class Backup_dadosUpdate(UpdateView):
         return super(Backup_dadosUpdate, self).form_valid(form)
 
 class Backup_dadosDelete(DeleteView):
+    """
+        Classe que herda de DeleteView para implementar seus métodos no genrenciamento da página de exclusão de backups.
+        Utilizado para dizer o model (atributos  que serão inseridos no banco) que será utilizado, página que deve ser direcionada após a inserção bem sucedida e outros campos.
+    """
     model = Backup_dados
-    success_url = reverse_lazy('hosting_list')
+    success_url = reverse_lazy('servicos')
 
-class unidade:
+class Unidade:
+    """
+        Classe que possui os atributos de cada unidade.
+        Se refere a tabela de Unidades do financeiro.
+    """
     def __init__(self, unidade, qtd, porcentagem, valor):
         self.unidade = unidade
         self.qtd = qtd
